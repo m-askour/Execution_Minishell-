@@ -6,11 +6,11 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:01:32 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 17:22:03 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 10:31:52 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "../../minishell.h"
 
 size_t	ft_strlcpy(char *dest, const char *src, size_t dstsize)
 {

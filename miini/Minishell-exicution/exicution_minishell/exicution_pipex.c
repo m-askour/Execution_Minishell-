@@ -6,11 +6,10 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 16:50:41 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/23 19:12:49 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 11:53:29 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
 #include <stdio.h>
 // static int	handle_fork_error(int *pipfd)
 // {
@@ -118,7 +117,7 @@
 // 		;
 // 	return (WEXITSTATUS(status));
 // }
-#include "pipex.h"
+#include "../../minishell.h"
 
 static void	handle_cmd_errors(char **cmd_arg, char *cmd_path)
 {

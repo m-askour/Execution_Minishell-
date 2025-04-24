@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/04/23 18:55:00 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 11:52:31 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,5 +102,31 @@ t_token			*string_tokens(char *str);
 
 
 
+
+
+
+
+
+
+
+
+/*---------------exicution_util-----------------------*/
+char	*ft_itoa(int n);
+char	**ft_split_up(char const *s, char c);
+char	*ft_strchr(const char *src, int c);
+char	*ft_strdup(const char *s1);
+char	*ft_strjoin(char const *s1, char const *s2);
+size_t	ft_strlcat(char *dst, const char *src, size_t dstsize);
+size_t	ft_strlcpy(char *dest, const char *src, size_t dstsize);
+size_t	ft_strlen(const char *str);
+int	ft_strcmp(const char *s1, const char *s2);
+int	ft_strncmp(const char *s1, const char *s2, size_t n);
+
+
+/*---------------exicution_util-----------------------*/
+int exicut(t_cmd **cmd, char **env);
+int execute_single_command(t_cmd **cmd, char **envp);
+int redirections(t_cmd *cmd);
+char	*find_path(char *cmd, char **env);
 
 #endif

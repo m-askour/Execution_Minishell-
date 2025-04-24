@@ -6,13 +6,21 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:59 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 17:25:28 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 11:57:47 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
-#include "minishell.h"
+#include "../minishell.h"
+static void	free_split(char **str)
+{
+	int	i;
 
+	i = 0;
+	while (str[i])
+		free(str[i++]);
+	free(str);
+}
 static int	not_path(char **env)
 {
 	int	i;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   string_pasing.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
+/*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 03:16:06 by ahari             #+#    #+#             */
-/*   Updated: 2025/04/21 18:44:47 by ahari            ###   ########.fr       */
+/*   Updated: 2025/04/24 12:10:13 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,15 +22,15 @@ int	ft_isalpha(char c)
 	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
 }
 
-int ft_strcmp(const char *s1, const char *s2)
-{
-    while (*s1 && (*s1 == *s2))
-    {
-        s1++;
-        s2++;
-    }
-    return *(unsigned char *)s1 - *(unsigned char *)s2;
-}
+// int ft_strcmp(const char *s1, const char *s2)
+// {
+//     while (*s1 && (*s1 == *s2))
+//     {
+//         s1++;
+//         s2++;
+//     }
+//     return *(unsigned char *)s1 - *(unsigned char *)s2;
+// }
 
 int is_operator(const char s)
 {

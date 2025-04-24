@@ -6,11 +6,11 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 13:58:25 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 21:12:38 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 10:31:32 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "../../minishell.h"
 
 char	*ft_strchr(const char *src, int c)
 {

@@ -6,11 +6,11 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 18:14:53 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 17:24:12 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 10:31:28 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "../../minishell.h"
 
 static size_t	countstr(char const *s, char c)
 {

@@ -6,11 +6,11 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:10:53 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 17:21:54 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 10:31:36 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "../../minishell.h"
 
 char	*ft_strdup(const char *s1)
 {

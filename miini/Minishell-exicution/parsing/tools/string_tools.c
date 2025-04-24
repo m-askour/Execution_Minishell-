@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   string_tools.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
+/*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 03:04:47 by ahari             #+#    #+#             */
-/*   Updated: 2025/04/21 18:56:22 by ahari            ###   ########.fr       */
+/*   Updated: 2025/04/24 12:09:17 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,28 +48,28 @@ char    *ft_strndup(const char *s, size_t n)
     return dup;
 }
 
-char    *ft_strdup(const char *s1)
-{
-    size_t len = 0;
-    char *dup;
-    size_t i;
+// char    *ft_strdup(const char *s1)
+// {
+//     size_t len = 0;
+//     char *dup;
+//     size_t i;
 
-    if (!s1)
-        return (NULL);
-    while (s1[len])
-        len++;
-    dup = (char *)malloc((len + 1) * sizeof(char));
-    if (!dup)
-        return (NULL);
-    i = 0;
-    while (s1[i])
-    {
-        dup[i] = s1[i];
-        i++;
-    }
-    dup[i] = '\0';
-    return dup;
-}
+//     if (!s1)
+//         return (NULL);
+//     while (s1[len])
+//         len++;
+//     dup = (char *)malloc((len + 1) * sizeof(char));
+//     if (!dup)
+//         return (NULL);
+//     i = 0;
+//     while (s1[i])
+//     {
+//         dup[i] = s1[i];
+//         i++;
+//     }
+//     dup[i] = '\0';
+//     return dup;
+// }
 void	ft_putchar_fd(char c, int fd)
 {
 	if (fd >= 0)

@@ -6,11 +6,11 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:54:14 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 17:22:09 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 11:51:48 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "../../minishell.h"
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {

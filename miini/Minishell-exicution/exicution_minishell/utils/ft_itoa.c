@@ -6,11 +6,11 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 12:16:31 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 17:27:31 by maskour          ###   ########.fr       */
+/*   Updated: 2025/04/24 10:31:16 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "../../minishell.h"
 
 static int	digit_int(long nb)
 {
