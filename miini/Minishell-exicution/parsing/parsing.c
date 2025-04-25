@@ -6,110 +6,79 @@
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 03:04:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/04/22 00:14:42 by ahari            ###   ########.fr       */
+/*   Updated: 2025/04/24 16:05:08 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-
-static char *get_quoted_string(const char *str, int *index, char quote_char)
+static char *process_quoted_value(char *val, t_token *head)
 {
-    int start = *index + 1;
-    int len = 0;
+    char    quote;
+    int     len;
+    char    *new_val;
+    int     i;
+    int     j;
 
-    while (str[start + len] && str[start + len] != quote_char)
-        len++;
-
-    if (str[start + len] != quote_char)
-    {
-        ft_putstr_fd("minishell: syntax error near unexpected token `%c'\n", 2, quote_char);
-        return NULL;
-    }
-    char *val = malloc(len + 1);
+    i = 0;
+    j = 0;
     if (!val)
-        return NULL;
-
-    ft_strncpy(val, &str[start], len);
-    val[len] = '\0';
-    *index = start + len + 1;
-    return val;
-}
-
-t_token *handle_quoted_string(char *str, int *i, t_token **head)
-{
-    char *val = get_quoted_string(str, i, str[*i]);
-    if (!val)
-        return NULL;
-    
-    t_token *new = new_token(val, TOKEN_WORD);
-    if (!new)
+        return (print_error(head, NULL), NULL);
+    len = ft_strlen(val);
+    new_val = malloc(len + 1);
+    if (!new_val)
+        return (print_error(head, NULL), NULL);
+    while (i < len)
     {
-        free(val);
-        return NULL;
-    }
-    add_token(head, new);
-    return *head;
-}
-
-t_token *handle_operator_or_word(char *str, int *i, int start, t_token **head)
-{
-    char *val = NULL;
-    t_token_type type;
-
-    if (is_operator(str[*i]))
-    {
-        if ((str[*i] == '>' || str[*i] == '<') && str[*i] == str[*i+1])
+        if (val[i] == '\'' || val[i] == '\"')
         {
-            val = ft_strndup(&str[*i], 2);
-            *i += 2;
-        }
+            quote = val[i++];
+            while (i < len && val[i] != quote)
+                new_val[j++] = val[i++];
+            if (i < len)
+                i++;
+            else
+                return (print_error(NULL, new_val), NULL);
+        } 
         else
-            val =ft_strndup(&str[(*i)++], 1);
-        type = get_token_type(val);
+            new_val[j++] = val[i++];
     }
-    else
-    {
-        while (str[*i] && !ft_isspace(str[*i]) && !is_operator(str[*i]))
-            (*i)++;
-        val = strndup(&str[start], *i - start);
-        type = TOKEN_WORD;
-    }
-    if (val)
-    {
-        t_token *new = new_token(val, type);
-        if (!new)
-            return (free(val), NULL);
-        add_token(head, new);
-    }
-    return (*head);
+    new_val[j] = '\0';
+    return new_val;
 }
 
-
-t_token *string_tokens(char *str)
+static int process_token(t_token *current, t_token *head)
 {
-    t_token *head = NULL;
-    int i = 0;
-    int start;
+    char *new_val;
+    char *val;
     
-    while (str[i])
+    if (current->type != TOKEN_WORD)
+        return (1); 
+    val = current->value;
+    new_val = process_quoted_value(val, head);
+    if (!new_val)
+        return (free_tokens(head, NULL), 0);
+    free(current->value);
+    current->value = new_val;
+    return (1);
+}
+
+t_token *check_quoted(char *str)
+{
+    t_token *head;
+    t_token *current;
+    int count;
+
+    count = 0;
+    head = string_tokens(str);
+    current = head;
+    if (!head)
+        return (print_error(NULL, NULL), NULL);
+    while (current)
     {
-        while (ft_isspace(str[i]))
-            i++;
-        if (!str[i])
-            break;
-        start = i;
-        if (str[i] == '\'' || str[i] == '\"')
-        {
-            if (!handle_quoted_string(str, &i, &head))
-                return (free_tokens(head, NULL), NULL);
-        }
-        else
-        {
-            if (!handle_operator_or_word(str, &i, start, &head))
-                return (free_tokens(head, NULL), NULL);
-        }
+        if (!process_token(current, head))
+            return NULL;
+        current = current->next;
     }
-    
     return head;
 }

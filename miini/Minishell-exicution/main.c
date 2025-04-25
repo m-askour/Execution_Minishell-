@@ -26,16 +26,16 @@ int main(int ac,char **av,char **env)
             continue ;
         }
         commands = parse_commands(tokens);
-        // if (commands)
-        // {
-        //     int i = 0;
-        //     while (commands[i])
-        //     {
-        //         printf("Command #%d:\n", i + 1);
-        //         print_command_with_files(commands[i]);
-        //         i++;
-        //     }
-        // }
+        if (commands)
+        {
+            int i = 0;
+            while (commands[i])
+            {
+                printf("Command #%d:\n", i + 1);
+                print_command_with_files(commands[i]);
+                i++;
+            }
+        }
         exicut(commands, env);
         free_cmd(*commands);
         free_tokens(tokens, input); 
