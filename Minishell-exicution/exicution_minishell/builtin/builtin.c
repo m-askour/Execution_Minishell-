@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:48:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/05 15:46:41 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/06 11:42:53 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int is_builtin(char *command)
         ft_strcmp(command, "pwd") == 0);
 }
 
-void *execut_bultin(t_cmd **cmd, char **env)
+void execut_bultin(t_cmd **cmd, char **env)
 {
     t_env *env_list = file_inv(env);
 
@@ -38,11 +38,10 @@ void *execut_bultin(t_cmd **cmd, char **env)
         ft_exit(cmd);
     if (ft_strcmp(cmd[0]->cmd[0], "export") == 0)
         ft_export(cmd, env_list);
-    if (ft_strcmp(cmd[0]>cmd[0], "unset") == 0)
-        ft_unset(cmd);
+    if (ft_strcmp(cmd[0]->cmd[0], "unset") == 0)
+        ft_unset(cmd, env_list);
     if (ft_strcmp(cmd[0]->cmd[0], "env") == 0)
         ft_env(env_list);
     if (ft_strcmp(cmd[0]->cmd[0], "pwd") == 0)
         ft_pwd();
-    return ;
 }

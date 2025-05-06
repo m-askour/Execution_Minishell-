@@ -6,9 +6,10 @@ SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./pa
 			./exicution_minishell/execution.c ./exicution_minishell/redirections.c ./exicution_minishell/pipex_util.c\
 			./exicution_minishell/utils/ft_itoa.c ./exicution_minishell/utils/ft_split.c\
 			./exicution_minishell/utils/ft_strchr.c ./exicution_minishell/utils/ft_strjoin.c\
-			./exicution_minishell/utils/ft_strlcat.c\
-			./exicution_minishell/utils/ft_strlcpy.c \
-			./exicution_minishell/utils/ft_strncmp.c \
+			./exicution_minishell/utils/ft_strlcat.c ./exicution_minishell/utils/ft_isalpha.c\
+			./exicution_minishell/utils/ft_strlcpy.c ./exicution_minishell/utils/ft_atoi.c\
+			./exicution_minishell/utils/ft_strncmp.c ./exicution_minishell/utils/ft_isalnum.c\
+			./exicution_minishell/utils/ft_isdigit.c \
 			./exicution_minishell/builtin/builtin.c ./exicution_minishell/builtin/ft_cd.c \
 			./exicution_minishell/builtin/ft_echo.c ./exicution_minishell/builtin/ft_env.c \
 			./exicution_minishell/builtin/ft_exit.c ./exicution_minishell/builtin/ft_export.c \

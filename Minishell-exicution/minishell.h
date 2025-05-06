@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/05 15:52:46 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/06 10:44:22 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 #include <term.h> //
 #include <string.h>
 
-#define PATH_MAX 4096
+// #define PATH_MAX 4096
 
 typedef enum e_token_type
 {
@@ -132,8 +132,11 @@ size_t	ft_strlcpy(char *dest, const char *src, size_t dstsize);
 size_t	ft_strlen(const char *str);
 int	ft_strcmp(const char *s1, const char *s2);
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
-int	ft_isalnum(int c);
 void	ft_putstr_fd_up(char *s, int fd);
+int	ft_atoi(const char *str);
+int	ft_isdigit(int c);
+int	ft_isalpha_up(int c);
+int	ft_isalnum(int c);
 
 
 /*---------------exicution_util-----------------------*/
@@ -143,10 +146,10 @@ void redirections(t_cmd *cmd);
 char	*find_path(char *cmd, char **env);
 
 /*---------------------builtins-----------------------*/
-void *execut_bultin(t_cmd **cmd, char **env);
+void execut_bultin(t_cmd **cmd, char **env);
 int is_builtin(char *command);
 void ft_cd(t_cmd **cmd, t_env *data_env);
-void ft_echo(char **cmd);
+void ft_echo(t_cmd **cmd);
 void ft_env(t_env *env_list);
 void ft_exit(t_cmd **cmd);
 void ft_pwd();

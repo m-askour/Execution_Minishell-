@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:11:14 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/20 22:44:27 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/05 17:03:27 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,7 @@ char *expand_pip(void)
 }
 
 //expand $? // it 
-// char *expand_exit_stat(void)
-// {
-//     char *status_str;
-//     status_str = ft_itoa();
-//     return (status_str);
-// }
-
+// char *expand_exit_stat(void) // { //     char *status_str; //     status_str = ft_itoa(); //     return (status_str); // }
 
 char *expand_env_var(t_token *args)
 {

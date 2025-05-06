@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 16:50:12 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/05 15:50:00 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/06 11:11:28 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,14 @@ static int is_valid_key(char *key)
     if(!key || !*key)
         return (0);
         // the first char is letter or _
-    if (!ft_isalpha(*key) && *key != "_")
+    if (!ft_isalpha_up(*key) && *key != '_')
         return 0;
     int i = 0;
     // letter deget _
     while (key[++i])
     {
-        if (!ft_isalnum(key[i]) && key[i] != "_")
+        if (!ft_isalnum(key[i]) && key[i] != '_')
             return 0;
-        i++;
     }
     return (1);
 }
@@ -34,12 +33,12 @@ static void extra_key_value(char *input, char **key, char **value)
 {
     *key = NULL;
     *value = NULL;
-    char *equal = ft_strchr(input, "=");// the equal have ="path"
+    char *equal = ft_strchr(input, '=');// the equal have ="path"
     if (!input)
         return;
     if (equal)
     {
-        *equal = "\0";
+        *equal = '\0';
         *key = input;
         *value = equal + 1;
     }
@@ -49,7 +48,7 @@ static void extra_key_value(char *input, char **key, char **value)
 }
 static void add_env_export(t_env **env, char *key , char *value)
 {
-    t_env *current = env;
+    t_env *current = *env;
     t_env *new_node = malloc(sizeof(t_env));
     if (new_node)
     {
@@ -57,10 +56,12 @@ static void add_env_export(t_env **env, char *key , char *value)
         return ;
     }
     char *env_entry;
+    char *tmp;
     if (value) // exist value
     {
-        env_entry = ft_strjoin(key, "=");
-        env_entry = ft_strjoin(env_entry, value);
+        tmp = ft_strjoin(key, "=");
+        env_entry = ft_strjoin(tmp, value);
+        free(tmp);
     }
     else
         env_entry = ft_strjoin(key, "=");
@@ -115,10 +116,10 @@ static t_env *sort_env(t_env *env)
        env = head;
        swaaped = 0;// this to see is there is wha sort or no 
        j = 0;
-       while (i < lsit_size - i - 1)
+       while (j < lsit_size - i - 1)
        {
             
-            if (ft_strcmd(env->data_env, env->next->data_env) > 0)
+            if (ft_strcmp(env->data_env, env->next->data_env) > 0)
             {
                 tmp = env->data_env;
                 env->data_env = env->next->data_env;
@@ -145,41 +146,45 @@ static void print_sort_env(t_env *env)
     }
 }
 //this for sort the env and desplayet in 1;
-static void sort_and_display_env(t_env *envp, int i)
+static void sort_and_display_env(t_env *envp, int desplay)
 {
     t_env *tmp;
-    if (i = 0)
-    {
+
         // sort the linked list
         tmp = sort_env(envp);
 
         // print sorted linked list
+    if (desplay)
         print_sort_env(tmp);
-        
-    }
-    else if (i = 1)
-        sort_env(envp);//sort the linked list
+
         
 }
+//handele this appand 
 static void append_value(t_env *env, char *key, char *value)
 {
     t_env *current = env;
+    char *new_val;
     if (!key)
         return;
     while (current)
     {
-        if (!ft_strcmp(current->data_env , key ))
-            current->data_env = ft_strjoin(current->data_env, value);
-        add_env_export(env,key, value);
+        if (!ft_strcmp(current->data_env , key ) && current->data_env[ft_strlen(key)] == '=')
+        {
+            new_val = ft_strjoin(current->data_env, value);
+            free(current->data_env);
+            current->data_env = new_val;
+            return ;
+        }
         current = current->next;  
     }
+    add_env_export(&env,key, value);
 }
 
 // this to handel if there is join i the same key 
 static void handel_append(t_env *env, char *key, char *value, char *cmd)
 {
     // is valide key 
-    if (!is_valid_key)
+    if (!is_valid_key(key))
     {
         ft_putstr_fd_up("minishell: export: ",2);
         ft_putstr_fd_up(cmd,2);
@@ -188,32 +193,33 @@ static void handel_append(t_env *env, char *key, char *value, char *cmd)
     }
     append_value(env, key, value);
 }
-static void update_or_add_env(t_env *env, char *key, char value)
+static void update_or_add_env(t_env *env, char *key, char *value)
 {
     t_env *current = env;
     if (!key)
         return ;
     char *add_equal;
+    char *tmp;
     while(current)
     {
         if (!ft_strcmp(current->data_env , key ))
         {
+                tmp= ft_strjoin(key, "=");
+                add_equal = ft_strjoin(tmp, value);
+                free(tmp);
                 free(current->data_env);
-                
-                add_equal= ft_strjoin(key, "=");
-                current->data_env = ft_strjoin(add_equal, value);
-    
+                current->data_env = add_equal;
+                return ;
         }
-        else
-            add_env_export(env,key, value);
         current = current->next;
     }
+    add_env_export(&env,key, value);
 }
 // this to handle just the value after the key
 static void handle_assigmnet(t_env *env, char *key, char *value, char *cmd)
 {
     //is valid
-    if (!is_valid_key)
+    if (!is_valid_key(key))
     {
         ft_putstr_fd_up("minishell: export: ",2);
         ft_putstr_fd_up(cmd,2);
@@ -236,18 +242,60 @@ static int is_exist(t_env *env, char *key)
     }   
     return(0);
 }
-static void mark_as_ecport(t_env *env, char key)
+// static void mark_as_ecport(t_env *env, char key)
+// {
+//     t_env *current = env;
+//     int key_len = ft_strlen(key);
+//     while (current)
+//     {
+//         if (!ft_strcmp(current->data_env, key) && current->data_env[key_len] == '=')
+            
+//         return ;
+//     }
+// }
+// this just for test
+static void mark_as_exported(t_env *env, char *key)
 {
     t_env *current = env;
-    int key_len = ft_strlen(key);
+    size_t key_len = ft_strlen(key);
+    
     while (current)
     {
-        if (!ft_strcmp(current->data_env, key) && current->data_env[key_len] == '=')
-            
-        return ;
+        // Check if this is the variable we're looking for
+        if (ft_strncmp(current->data_env, key, key_len) == 0 && 
+            current->data_env[key_len] == '=')
+        {
+            // Check if it's already marked as exported
+            if (ft_strncmp(current->data_env, "export ", 7) != 0)
+            {
+                // Create new entry with "export " prefix
+                char *new_entry = ft_strjoin("export ", current->data_env);
+                if (!new_entry)
+                    return;  // Memory allocation failed
+                
+                free(current->data_env);
+                current->data_env = new_entry;
+            }
+            return;
+        }
+        current = current->next;
     }
+    
+    // If we get here, the variable wasn't found - add it as a new exported variable
+    char *new_entry = ft_strjoin("export ", key);
+    if (!new_entry)
+        return;
+    
+    char *full_entry = ft_strjoin(new_entry, "=");
+    free(new_entry);
+    if (!full_entry)
+        return;
+    
+    add_env_export(&env, full_entry, NULL);
+    free(full_entry);
 }
-static void handle_export(t_env *env, char *key, char *value, char *cmd)
+
+static void handle_export(t_env *env, char *key, char *cmd)
 {
     //is avalid
     char *empty = "";
@@ -263,33 +311,34 @@ static void handle_export(t_env *env, char *key, char *value, char *cmd)
         mark_as_exported(env, key);
     //if it's not exist
     else
-        add_env_export(env,key, empty);
+        add_env_export(&env,key, empty);
 }
 // this is the global function 
-void ft_export(t_cmd **cmd, t_env *envp)
+void ft_export(t_cmd **cmd_ptr, t_env *envp)
 {
     char *key;
     char *value;
-    if (cmd[0]->cmd[0])
+    t_cmd *cmd = *cmd_ptr;
+    if (cmd->cmd[0])
     {
-        if (!cmd[0]->cmd[1])
-            sort_and_display_env(envp,0);//sort the linked list and desplay it  //0for sort and desplay
+        if (!cmd->cmd[1])
+            sort_and_display_env(envp,1);//sort the linked list and desplay it  //0for sort and desplay
         return ;//return the env;
     }
     int i = 0;
-    while (cmd[0]->cmd[i])
+    while (cmd->cmd[i])
     {
-        extra_key_value(cmd[0]->cmd[i], &key, &value);
-        if (!ft_strcmp(cmd[0]->cmd[i],"=")){
-            if (!ft_strcmp(cmd[0]->cmd[i],"+="))
-                handel_append(envp, key, value, cmd[0]->cmd[i]);
+        extra_key_value(cmd->cmd[i], &key, &value);
+        if (!ft_strcmp(cmd->cmd[i],"=")){
+            if (!ft_strcmp(cmd->cmd[i],"+="))
+                handel_append(envp, key, value, cmd->cmd[i]);
             else
-                handle_assigmnet(envp, key, value, cmd[0]->cmd[i]);
+                handle_assigmnet(envp, key, value, cmd->cmd[i]);
         }
         // ths for no value
         else
-            handel_export(envp, key, value, cmd[0]->cmd[i]);
+            handle_export(envp, key, cmd->cmd[i]);
         i++;
     }
-    sort_and_display_env(envp,1);// 1 just for sort not desplay 
+    sort_and_display_env(envp,0);// 1 just for sort not desplay 
 }

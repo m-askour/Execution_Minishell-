@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:39:24 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/03 09:35:03 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/06 11:45:56 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 
 char *search_env(t_env *env, const char *key)
 {
-    int len = ft_strle(key);
+    int len = ft_strlen(key);
     while (env)
     {
-        if (!ft_strcmp(env->data_env, key))
-            return(env->data_env + len);
+        if (!ft_strcmp(env->data_env, key) && env->data_env[len] == '=')
+            return(env->data_env + len + 1);
         env = env->next;
     }
-    return (0);
+    return (NULL);
 }
 t_env *new_env(char *data_env)
 {
