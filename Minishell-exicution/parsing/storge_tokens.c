@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   storge_tokens.c                                    :+:      :+:    :+:   */
+/*   store_tokens.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 17:49:49 by ahari             #+#    #+#             */
-/*   Updated: 2025/04/24 16:06:56 by ahari            ###   ########.fr       */
+/*   Updated: 2025/05/13 12:00:00 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,45 +114,56 @@ static t_cmd *parse_single_command(t_token **tokens)
         return (free_cmd(cmd), NULL);
     while (*tokens && (*tokens)->type != TOKEN_PIPE)
         *tokens = (*tokens)->next;
+    cmd->next = NULL;  // Initialize next pointer to NULL
     return (cmd);
 }
 
-t_cmd **parse_commands(t_token *tokens)
+t_cmd *parse_commands(t_token *tokens)
 {
+    t_cmd   *cmd_head = NULL;  // Head of the command linked list
+    t_cmd   *current = NULL;   // Current command node
+    t_cmd   *new_cmd;          // New command to be added
     int     cmd_count;
     int     i;
-    t_cmd   **cmd_list;
 
-    i = 0;
-    cmd_count = count_commands(tokens);
-    cmd_list = malloc(sizeof(t_cmd *) * (cmd_count + 1));
-    if (!cmd_list)
+    if (!tokens)
         return (NULL);
+    
+    cmd_count = count_commands(tokens);
+    i = 0;
     while (i < cmd_count)
     {
-        cmd_list[i] = parse_single_command(&tokens);
-        if (!cmd_list[i])
-            return (free_cmd_list(cmd_list, i), NULL);
+        new_cmd = parse_single_command(&tokens);
+        if (!new_cmd)
+        {
+            // Clean up and return NULL if parsing failed
+            free_cmd_list(cmd_head);
+            return (NULL);
+        }
+        
+        // Add the new command to our linked list
+        if (!cmd_head)
+        {
+            cmd_head = new_cmd;  // First command becomes the head
+            current = cmd_head;
+        }
+        else
+        {
+            current->next = new_cmd;  // Add to the end of the list
+            current = current->next;
+        }
+        
+        // Move to the next command (skip pipe token)
         if (tokens && tokens->type == TOKEN_PIPE && tokens->next)
             tokens = tokens->next;
         else if (tokens && tokens->type == TOKEN_PIPE && !tokens->next)
-            return (free_cmd_list(cmd_list, i),
-                ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2, 0), NULL);
+        {
+            ft_putstr_fd("minishell: syntax error \n", 2, 0);
+            free_cmd_list(cmd_head);
+            return (NULL);
+        }
         i++;
     }
-    cmd_list[cmd_count] = NULL;
-    i = 0;
-    int count = 0;
-    while (cmd_list[i])
-    {
-        if(cmd_list[i]->files->type == TOKEN_HEREDOC)
-            count++;
-        i++;
-    }
-    if(count > 24)
-    {
-        ft_putstr_fd("minishell: maximum here-document count exceeded\n", 2, 0);
-        return (free_cmd_list(cmd_list, i), NULL);
-    }
-    return cmd_list;
+    
+    return cmd_head;
 }

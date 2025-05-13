@@ -70,15 +70,16 @@ void free_tokens(t_token *tokens, char *input)
     free(input);
 }
 
-void free_cmd_list(t_cmd **cmd_list, int count)
+void free_cmd_list(t_cmd *cmd_head)
 {
-    int j;
+    t_cmd *current;
+    t_cmd *next;
     
-    j = 0;
-    while (j < count)
+    current = cmd_head;
+    while (current)
     {
-        free_cmd(cmd_list[j]);
-        j++;
+        next = current->next;  // Save the next pointer before freeing current
+        free_cmd(current);     // Free the current command
+        current = next;        // Move to the next command
     }
-    free(cmd_list);
 }

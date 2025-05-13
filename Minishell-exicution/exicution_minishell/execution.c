@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/05 15:51:56 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/13 17:10:31 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,8 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env)
                 close(pipes[1]);
             }
         }
-        else {
+        else 
+        {
             perror("minishell: fork");
             exit(1);
         }
@@ -140,9 +141,12 @@ int exicut(t_cmd **cmd, char **env)
     int cmd_count = 0;
     if (!cmd || !*cmd)
         return (1);
-    
-    while (cmd[cmd_count])
+    t_cmd *current = *cmd; 
+    while (current)
+    {
         cmd_count++;
+        current = current->next;
+    }
     if (cmd_count == 1)
     {
         if (is_builtin(cmd[0]->cmd[0]))

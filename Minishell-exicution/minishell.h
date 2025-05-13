@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/06 10:44:22 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/13 18:24:20 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ typedef struct s_cmd
 	char		**cmd; // command name
 	t_file		*files; // files associated with the command
 	int			file_count; // number of files
+	struct s_cmd	*next; // pointer to next command
 }	t_cmd;
 
 //this struct where i str all the infermation of env
@@ -72,47 +73,53 @@ typedef struct s_env
 }t_env;
 
 /*---------------function for free--------------------*/
-void                    free_tokens(t_token *tokens, char *input);
-void                    free_cmd(t_cmd *cmd);
-void                    free_cmd_array(char **cmd);
-void                    free_files(t_file *files, int file_count);
-void                    free_cmd_list(t_cmd **cmd_list, int count);
-void                    print_error(t_token *head, char *val);
+void			free_tokens(t_token *tokens, char *input);
+void    		free_cmd(t_cmd *cmd);
+void    		free_cmd_array(char **cmd);
+void    		free_files(t_file *files, int file_count);
+void			free_cmd_list(t_cmd *cmd_list);
+void			print_error(t_token *head, char *val);
 /*-----------------Tokenizer --------------------------*/
-t_token                 *string_tokens(char *str);
+t_token			*string_tokens(char *str);
 
 
 /*-----------------for print--------------------------*/
-void                    print_tokens(t_token *head);
-void                    print_command_with_files(t_cmd *cmd);
+void			print_tokens(t_token *head);
+void			print_command_with_files(t_cmd *cmd);
 
 /*---------------function for create------------------*/
-t_cmd                   *init_cmd(void);
-t_file                  *init_mfile(void);
+t_cmd    		*init_cmd(void);
+t_file			*init_mfile(void);
 
 /*---------------cmd----------------------------------*/
-t_cmd                   **parse_commands(t_token *tokens);
-int                             ft_isredirect(t_token_type type);
-int                             count_args(t_token *token);
-t_token                 *check_quoted(char *str);
+t_cmd			*parse_commands(t_token *tokens);
+int				ft_isredirect(t_token_type type);
+int				count_args(t_token *token);
+t_token			*check_quoted(char *str);
+t_cmd			*expand_cmd_list(t_cmd *cmd_head);
 
 /*------------ tools for parsing ----------------*/
-void                    ft_putstr_fd(char *s, int fd, char c);
-int                     ft_isspace(char c);
-int                     is_operator(const char s);
-char                    **ft_split(char *str);
-char                    *ft_strndup(const char *s1, size_t size);
-char                    *ft_strdup(const char *s1);
-char                    *ft_strncpy(char *dest, const char *src, size_t n);
-size_t                  ft_strlen(const char *s);
+void			ft_putstr_fd(char *s, int fd, char c);
+int     		ft_isspace(char c);
+int     		is_operator(const char s);
+char    		**ft_split(char *str);
+char			*ft_strndup(const char *s1, size_t size);
+char			*ft_strdup(const char *s1);
+char			*ft_strncpy(char *dest, const char *src, size_t n);
+size_t			ft_strlen(const char *s);
+int				ft_isalpha(char c);
+int				ft_isalnum(int c) ;
+int				ft_isdigit(int c) ;
+char			*ft_strcat(char *dest, const char *src);
+char			*ft_substr(const char *s, unsigned int start, size_t len);
 
 /*--------------this function for tockens------------*/
-void                    add_token(t_token **head, t_token *new);
-t_token_type    get_token_type(const char *s);
-t_token                 *new_token(char *val, t_token_type type);
+void			add_token(t_token **head, t_token *new);
+t_token_type	get_token_type(const char *s);
+t_token			*new_token(char *val, t_token_type type);
 
 /*---------------parsing parts-----------------------*/
-t_token                 *string_tokens(char *str);
+t_token			*string_tokens(char *str);
 
 
 
@@ -134,9 +141,10 @@ int	ft_strcmp(const char *s1, const char *s2);
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
 void	ft_putstr_fd_up(char *s, int fd);
 int	ft_atoi(const char *str);
-int	ft_isdigit(int c);
+// int	ft_isdigit(int c);
 int	ft_isalpha_up(int c);
-int	ft_isalnum(int c);
+// int	ft_isalnum(int c);
+char	*ft_strstr(const char *haystack, const char *needle);
 
 
 /*---------------exicution_util-----------------------*/

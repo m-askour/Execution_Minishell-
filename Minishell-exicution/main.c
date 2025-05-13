@@ -8,7 +8,7 @@ int main(int ac,char **av,char **env)
     (void)av;
     char        *input;
     t_token     *tokens;
-    t_cmd       **commands;
+    t_cmd       *commands;
     while (1)
     {
         input = readline("minishell$ ");
@@ -19,26 +19,28 @@ int main(int ac,char **av,char **env)
         }
         if (*input)
             add_history(input);
-        tokens = string_tokens(input);
+        tokens = check_quoted(input);
         if (!tokens)
-        {
-            free(input);
             continue ;
-        }
         commands = parse_commands(tokens);
-        if (commands)
-        {
-            int i = 0;
-            while (commands[i])
-            {
-                printf("Command #%d:\n", i + 1);
-                print_command_with_files(commands[i]);
-                i++;
-            }
-        }
-        exicut(commands, env);
-        free_cmd(*commands);
-        free_tokens(tokens, input); 
+        commands = expand_cmd_list(commands);
+        // if (commands)
+        // {
+        //     t_cmd *current = commands;
+        //     int i = 1;
+            
+        //     while (current)
+        //     {
+        //         printf("Command #%d:\n", i);
+        //         print_command_with_files(current);
+        //         current = current->next;
+        //         i++;
+        //     }
+        // }
+        exicut(&commands, env);
+        //  free_cmd(*commands);
+        free_tokens(tokens, input);
+
     }
     return (0);
 }

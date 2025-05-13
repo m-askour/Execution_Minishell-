@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:49:15 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/06 11:41:47 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/13 18:24:14 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,12 +81,12 @@ void ft_cd(t_cmd **cmd, t_env *data_env)
         return;
     }
     // char *key = search_env(data_env, "PWD=");
-    
-    if (chdir(cmd_path->cmd[1]) != 0)
-        perror("no such directore");
-    if (arg_count == 0 ||(cmd_path->cmd[1] && !ft_strcmp(cmd_path->cmd[1], "~")))
+    // if (chdir(cmd_path->cmd[1]) != 0)
+    //     perror("no such directore");
+    if (arg_count == 0 && (cmd_path->cmd[1] && !ft_strcmp(cmd_path->cmd[1], "~")))
         {
             path = search_env(data_env,"HOME");
+            printf("%s\n", path);
             if (!path)
             {
                 ft_putstr_fd_up("minishell: cd: HOME not set\n",2);
@@ -105,22 +105,20 @@ void ft_cd(t_cmd **cmd, t_env *data_env)
 
     else
         path = cmd_path->cmd[1];
-    
     //change directory
     if (chdir(path) != 0) //the chdir filed if don't return 0
     {
         ft_putstr_fd_up("minishell: cd: ",2);
         perror(path);
         return;
-    }
-        
+    } 
     //update envrone=ment
     if (!getcwd(pwd_update, PATH_MAX))
     {
         perror("minishell: cd: getcwd error");
         return;
     }    
-        //update the oldpwd;
+    //update the oldpwd;
     update_env_var(data_env, "OLDPWD", oldpwd_update);
     //update the pwd
     update_env_var(data_env, "PWD", pwd_update);
@@ -130,5 +128,5 @@ void ft_cd(t_cmd **cmd, t_env *data_env)
     {
         ft_putstr_fd_up(path, 1);
         ft_putstr_fd_up("\n",1);
-    }   
+    }
 }

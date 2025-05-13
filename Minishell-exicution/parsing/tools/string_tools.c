@@ -98,3 +98,68 @@ void ft_putstr_fd(char *s, int fd, char c)
     }
 }
 
+int	ft_isdigit(int c)
+{
+	if (c >= '0' && c <= '9')
+		return (1);
+	return (0);
+}
+char	*ft_substr(const char *s, unsigned int start, size_t len)
+{
+	char	*substr;
+	size_t	i;
+	size_t	s_len;
+
+	if (!s)
+		return (NULL);
+	s_len = 0;
+	while (s[s_len])
+		s_len++;
+	if (start >= s_len)
+		return (calloc(1, sizeof(char)));
+	if (len > s_len - start)
+		len = s_len - start;
+	substr = (char *)malloc((len + 1) * sizeof(char));
+	if (!substr)
+		return (NULL);
+	i = 0;
+	while (i < len && s[start + i])
+	{
+		substr[i] = s[start + i];
+		i++;
+	}
+	substr[i] = '\0';
+
+	return (substr);
+}
+
+char	*ft_strcat(char *dest, const char *src)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	// Trouver la fin de la chaîne dest
+	while (dest[i] != '\0')
+		i++;
+
+	j = 0;
+	// Copier les caractères de src à la suite de dest
+	while (src[j] != '\0')
+	{
+		dest[i + j] = src[j];
+		j++;
+	}
+	dest[i + j] = '\0'; // Terminer la nouvelle chaîne
+
+	return (dest);
+}
+
+
+int	ft_isalnum(int c)
+{
+    if (ft_isalpha(c) == 1 || ft_isdigit(c) == 1)
+    return (1);
+	return (0);
+}
+
