@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:49:15 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/13 18:24:14 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/14 16:49:19 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,61 +28,45 @@ static int count_cmd(t_cmd **cmd)
 static void update_env_var(t_env *data_env, char *key, char *dest)
 {
     t_env *current = data_env;
-    char *tmp;
     char *new_path;
     while(current)
     {
-        if (!ft_strcmp(current->data_env,"PWD="))
+        if (ft_strstr(current->data_env,key) != NULL)
         {
-            tmp = ft_strjoin(key, "=");
-            if (!tmp)
-                 return;
-            new_path = ft_strjoin(tmp, dest);
-            free(tmp);
+            new_path = ft_strjoin(key, dest);
             if (!new_path)
                  return;
             free(current->data_env);
             current->data_env = new_path;
             return;
         }
-        else if (!ft_strcmp(current->data_env,"PWD="))
-        {
-            tmp = ft_strjoin(key, "=");
-            if (!tmp)
-                 return;
-            new_path = ft_strjoin(tmp, dest);
-            free(tmp);     
-            if (!new_path)
-                 return;
-            free(current->data_env);
-            current->data_env = new_path;
-            return;
-        }
-        
         current = current->next;
     }
 }
-void ft_cd(t_cmd **cmd, t_env *data_env)
+
+t_env *ft_cd(t_cmd **cmd, t_env *data_env)
 {
-    char *pwd_update = NULL;// STOR THE NEW PWD;
-    char *oldpwd_update = NULL;//STORE THE LAST PWD
+    char pwd_update[PATH_MAX]; // Buffer for new PWD
+    char oldpwd_update[PATH_MAX]; // Buffer for old PWD
     char *path = NULL;
     int arg_count = count_cmd(cmd);
     t_cmd *cmd_path = *cmd;
-    if (arg_count >1)
+    if (!cmd_path->cmd[1])
+        return (data_env);
+    if (arg_count > 1)
     {
-        ft_putstr_fd_up("minishell: cd: too many arguments\n",2);
-        return ;
+        ft_putstr_fd_up("minishell: cd: too many arguments\n", 2);
+        return (data_env);
     }
-    // to save the current directory in oldpwd
+
+    // Save current directory in oldpwd_update
     if (!getcwd(oldpwd_update, PATH_MAX))
     {
         perror("minishell: cd");
-        return;
+        return (data_env);
     }
-    // char *key = search_env(data_env, "PWD=");
-    // if (chdir(cmd_path->cmd[1]) != 0)
-    //     perror("no such directore");
+
+    // Determine path to change to
     if (arg_count == 0 && (cmd_path->cmd[1] && !ft_strcmp(cmd_path->cmd[1], "~")))
         {
             path = search_env(data_env,"HOME");
@@ -90,43 +74,46 @@ void ft_cd(t_cmd **cmd, t_env *data_env)
             if (!path)
             {
                 ft_putstr_fd_up("minishell: cd: HOME not set\n",2);
-                return ;
+                return (data_env);
             }
         }
-    else if (!ft_strcmp(cmd_path->cmd[1], "-"))
+    else if (!ft_strcmp(cmd_path->cmd[1], "-") && cmd_path->cmd[1])
       {  
         path = search_env(data_env, "OLDPWD");
         if (!path)
         {
             ft_putstr_fd_up("minishell: cd: OLDPWD not set\n",2);
-            return ;
+            return (data_env);
         }
       }
 
     else
         path = cmd_path->cmd[1];
-    //change directory
-    if (chdir(path) != 0) //the chdir filed if don't return 0
+
+    // Change directory
+    if (chdir(path) != 0)
     {
-        ft_putstr_fd_up("minishell: cd: ",2);
+        ft_putstr_fd_up("minishell: cd: ", 2);
         perror(path);
-        return;
-    } 
-    //update envrone=ment
+        return(data_env);
+    }
+
+    // Update environment
     if (!getcwd(pwd_update, PATH_MAX))
     {
         perror("minishell: cd: getcwd error");
-        return;
-    }    
-    //update the oldpwd;
-    update_env_var(data_env, "OLDPWD", oldpwd_update);
-    //update the pwd
-    update_env_var(data_env, "PWD", pwd_update);
+        return(data_env);
+    }
 
-    //this to print new directory 
+    // Update the oldpwd
+    update_env_var(data_env, "OLDPWD=", oldpwd_update);
+    // Update the pwd
+    update_env_var(data_env, "PWD=", pwd_update);
+    // Print new directory if cd -
     if (cmd_path->cmd[1] && !ft_strcmp(cmd_path->cmd[1], "-"))
     {
-        ft_putstr_fd_up(path, 1);
-        ft_putstr_fd_up("\n",1);
+        ft_putstr_fd_up(pwd_update, 1); // Should print new directory (OLDPWD)
+        ft_putstr_fd_up("\n", 1);
     }
+    return (data_env);
 }

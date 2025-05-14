@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:48:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/13 18:24:34 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/14 18:33:24 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,21 +26,22 @@ int is_builtin(char *command)
         ft_strcmp(command, "pwd") == 0);
 }
 
-void execut_bultin(t_cmd **cmd, char **env)
+t_env *execut_bultin(t_cmd **cmd, t_env *env_list)
 {
-    t_env *env_list = file_inv(env);  
+
     if (ft_strcmp(cmd[0]->cmd[0], "cd") == 0)
-        ft_cd(cmd, env_list);
-    if (ft_strcmp(cmd[0]->cmd[0], "echo") == 0)
+        env_list = ft_cd(cmd, env_list);
+    else if (ft_strcmp(cmd[0]->cmd[0], "echo") == 0)
         ft_echo(cmd);
-    if(ft_strcmp(cmd[0]->cmd[0], "exit") == 0)
+    else if(ft_strcmp(cmd[0]->cmd[0], "exit") == 0)
         ft_exit(cmd);
-    if (ft_strcmp(cmd[0]->cmd[0], "export") == 0)
+    else if (ft_strcmp(cmd[0]->cmd[0], "export") == 0)
         ft_export(cmd, env_list);
-    if (ft_strcmp(cmd[0]->cmd[0], "unset") == 0)
+    else if (ft_strcmp(cmd[0]->cmd[0], "unset") == 0)
         ft_unset(cmd, env_list);
-    if (ft_strcmp(cmd[0]->cmd[0], "env") == 0)
+    else if (ft_strcmp(cmd[0]->cmd[0], "env") == 0)
         ft_env(env_list);
-    if (ft_strcmp(cmd[0]->cmd[0], "pwd") == 0)
+    else if (ft_strcmp(cmd[0]->cmd[0], "pwd") == 0)
         ft_pwd();
+    return(env_list);
 }

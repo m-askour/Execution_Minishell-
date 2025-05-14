@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 16:50:12 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/08 20:50:47 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/14 18:30:08 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,15 +204,16 @@ static void handel_append(t_env *env, char *cmd)
 static void update_or_add_env(t_env **env, char *key, char *value)
 {
     t_env *current = *env;
-    int key_len = ft_strlen(key);
+    int key_len;
+    
     if (!key)
         return;
-    char *add_equal;
-    char *tmp;
+    
+    key_len = ft_strlen(key);
     while (current) {
         if (!ft_strncmp(current->data_env, key, key_len) && current->data_env[key_len] == '=') {
-            tmp = ft_strjoin(key, "=");
-            add_equal = ft_strjoin(tmp, value);
+            char *tmp = ft_strjoin(key, "=");
+            char *add_equal = ft_strjoin(tmp, value);
             free(tmp);
             free(current->data_env);
             current->data_env = add_equal;
@@ -220,8 +221,8 @@ static void update_or_add_env(t_env **env, char *key, char *value)
         }
         current = current->next;
     }
-    if (ft_strncmp(current->data_env, key, key_len))
-        add_env_export(*env, key, value);
+    // If we got here, the key wasn't found - add it
+    add_env_export(*env, key, value);
 }
 // this to handle just the value after the key
 static void handle_assigmnet(t_env *env, char *cmd)

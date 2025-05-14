@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/13 18:24:20 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/14 17:10:15 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,15 +148,15 @@ char	*ft_strstr(const char *haystack, const char *needle);
 
 
 /*---------------exicution_util-----------------------*/
-int exicut(t_cmd **cmd, char **env);
+int exicut(t_cmd **cmd, t_env *env_list);
 // int execute_single_command(t_cmd **cmd, char **envp);
 void redirections(t_cmd *cmd);
 char	*find_path(char *cmd, char **env);
 
 /*---------------------builtins-----------------------*/
-void execut_bultin(t_cmd **cmd, char **env);
+t_env *execut_bultin(t_cmd **cmd, t_env *env_list);
 int is_builtin(char *command);
-void ft_cd(t_cmd **cmd, t_env *data_env);
+t_env *ft_cd(t_cmd **cmd, t_env *data_env);
 void ft_echo(t_cmd **cmd);
 void ft_env(t_env *env_list);
 void ft_exit(t_cmd **cmd);
