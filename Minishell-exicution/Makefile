@@ -1,5 +1,5 @@
 CC = cc 
-CFLAGS = -Wall -Wextra -Werror -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address -o rl_replace_line 
 SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./parsing/tools/init_tools.c \
 			./parsing/tools/string_tools.c  ./parsing/tools/free_tools.c    ./parsing/tools/print_file.c\
 			./parsing/parsing.c             ./parsing/storge_tokens.c     ./parsing/tokenizer.c ./parsing/expand.c  main.c\
@@ -13,7 +13,8 @@ SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./pa
 			./exicution_minishell/builtin/ft_echo.c ./exicution_minishell/builtin/ft_env.c \
 			./exicution_minishell/builtin/ft_exit.c ./exicution_minishell/builtin/ft_export.c \
 			./exicution_minishell/builtin/ft_pwd.c ./exicution_minishell/builtin/ft_unset.c \
-			./exicution_minishell/builtin/utils_1.c ./exicution_minishell/utils/ft_strtrim.c
+			./exicution_minishell/builtin/utils_1.c ./exicution_minishell/utils/ft_strtrim.c \
+			./exicution_minishell/signals/signals.c
 FLAGS= -lreadline
 OBJ_PARSING = $(SRC_PARSING:.c=.o)
 

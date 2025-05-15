@@ -6,24 +6,26 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/15 15:15:57 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/15 20:58:21 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 #define MINISHELL_H
 ///the headar of all file that we will use in this project 
-#include <limits.h>
-#include <fcntl.h>
+#include <signal.h>//this for the signals
+#include <limits.h>//this for the limits
+#include <sys/wait.h> // Required for waitpid()
+#include <fcntl.h> // Required for open() and flags
 #include <stdio.h>  // perror()
-#include <readline/readline.h> //for 
+#include <readline/readline.h>  // For rl_replace_line, rl_redisplay, etc.
 #include <readline/history.h> // for readline
-#include <unistd.h> //  for getcwd() , chdir() , isatty()   q
+#include <unistd.h> //  for getcwd() , chdir() , isatty() ,dup2(), close()
 #include <sys/stat.h> // stat() & lstat() & fstat()
 #include <sys/types.h> // opendir() closedir()
-#include <dirent.h> // opendir() readdir() closedir()
+#include <dirent.h> // opendir() ,readdir() ,closedir()
 #include <string.h> // strerror() && 
-#include <sys/ioctl.h> //
+#include <sys/ioctl.h> // For ioctl()
 #include <stdlib.h> //
 #include <termios.h> //
 #include <curses.h> //
@@ -177,4 +179,8 @@ t_env *new_env(char *data_env);
 void add_env(t_env **env_list, t_env *new_node);
 t_env *file_inv(char **env);
 
+
+
+/*---------------signals-----------------------*/
+void handler(int num);
 #endif

@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/15 15:41:52 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/15 21:07:47 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@ int main(int ac,char **av,char **env)
     t_token     *tokens;
     t_cmd       *commands;
     t_env *env_list;
-    
     env_list = file_inv(env);
+    signal(SIGINT, handler);
     while (1)
     {
         input = readline("minishell$ ");
