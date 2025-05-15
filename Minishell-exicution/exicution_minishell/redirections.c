@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:02:07 by maskour           #+#    #+#             */
-/*   Updated: 2025/04/25 15:37:05 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/15 16:45:31 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,61 +78,89 @@ static void rederect_add_to_file(t_file *file)
 	}
 	close(fd);
 }
-static void *get_rundem_name()
+static void *get_rundem_name(void)
 {
-	char *base = "tmp/herdoc";
-	char *filename;
-	int fd;
-	char *count_str;
-	char *tmp;
-	filename = ft_strdup(base);
-	if (!filename)
-		exit(1);
-	fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600);
-	if (fd != -1)
-	{
-		close (fd);
-		return (filename);
-	}
-	free(filename);
-	int count = 0;
-	while (count < INT_MAX)
-	{
-		count_str = ft_itoa(count);
-		if (!count_str)
-			exit(1);
-		filename = ft_strjoin(base, "_");
-		tmp = ft_strjoin(filename,count_str);
-		free(filename);
-		free(count_str);
-		filename = tmp;
-		fd = open (filename, O_WRONLY| O_CREAT | O_EXCL, 0600);
-		if (fd != -1)
-		{
-			close (fd);
-			return(filename);
-		}
-		free(filename);
-		count++;
-	}
-	perror("filed to creat unique herdoc filww \n");
-	exit(1);
+    char *base = "tmp/herdoc";
+    char *filename;
+    int fd;
+    char *count_str;
+    char *tmp;
+
+    // First attempt with base name
+    filename = ft_strdup(base);
+    if (!filename)
+        return (NULL);
+
+    fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600);
+    if (fd != -1)
+    {
+        close(fd);
+        return (filename);
+    }
+    free(filename);
+
+    // Try with numbered suffixes
+    int count = 0;
+    while (count < 1000)
+    {
+        count_str = ft_itoa(count);
+        if (!count_str)
+            return (NULL);
+
+        filename = ft_strjoin(base, "_");
+        if (!filename)
+        {
+            free(count_str);
+            return (NULL);
+        }
+
+        tmp = ft_strjoin(filename, count_str);
+        free(filename);
+        free(count_str);
+        
+        if (!tmp)
+            return (NULL);
+
+        filename = tmp;
+        fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600);
+        if (fd != -1)
+        {
+            close(fd);
+            return (filename);
+        }
+        
+        free(filename);
+        count++;
+    }
+    return (NULL);
 }
 static void function_herdoc(t_file *file)
 {
-	char *filename = get_rundem_name();
+	char *filename = get_rundem_name();//THIS TO CREAT RANDEM FILE;
+	if (!filename)// this for the open can't 
+	{
+		perror ("cant creat temporory file");
+		exit(1);
+	}
 	int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC,0644);
 	if (fd == -1)// this for the open can't 
 	{
 		perror ("cant open the file");
+		free(filename);
 		exit(1);
 	}
 	char *line;
+	printf("delemiteur is : %s\n",file->name);
 	while(1)
 	{
-		line = readline("heredoc> ");
-		if (!line || ft_strcmp(line, file->name) == 0)
+		line = readline("> ");
+		if (!ft_strcmp(line, file->name))//this to desplay the herdoc
+		{
+			free(line);
 			break;
+		}
+		printf("Line entered: %s\n", line);
+		printf("File name: %s\n", file->name);
 		write(fd, line,ft_strlen(line));
 		write(fd,"\n", 1);
 		free(line);
@@ -143,6 +171,7 @@ static void function_herdoc(t_file *file)
 	dup2(fd,0);
 	close(fd);
 }
+
 void redirections(t_cmd *cmd)
 {
 	int i = 0;
@@ -151,7 +180,6 @@ void redirections(t_cmd *cmd)
 	t_file *files;
 	while (i < cmd->file_count)
 	{
-		printf("%d\n", cmd->file_count);
 		files = &cmd->files[i];
 		/// this for the input file
 		if (files->type == TOKEN_REDIRECT_IN)

@@ -4,7 +4,7 @@ SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./pa
 			./parsing/tools/string_tools.c  ./parsing/tools/free_tools.c    ./parsing/tools/print_file.c\
 			./parsing/parsing.c             ./parsing/storge_tokens.c     ./parsing/tokenizer.c ./parsing/expand.c  main.c\
 			./exicution_minishell/execution.c ./exicution_minishell/redirections.c ./exicution_minishell/pipex_util.c\
-			./exicution_minishell/utils/ft_itoa.c ./exicution_minishell/utils/ft_split.c\
+			./exicution_minishell/utils/ft_split.c\
 			./exicution_minishell/utils/ft_strchr.c ./exicution_minishell/utils/ft_strjoin.c\
 			./exicution_minishell/utils/ft_strlcat.c ./exicution_minishell/utils/ft_isalpha.c\
 			./exicution_minishell/utils/ft_strlcpy.c ./exicution_minishell/utils/ft_atoi.c\
@@ -13,7 +13,7 @@ SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./pa
 			./exicution_minishell/builtin/ft_echo.c ./exicution_minishell/builtin/ft_env.c \
 			./exicution_minishell/builtin/ft_exit.c ./exicution_minishell/builtin/ft_export.c \
 			./exicution_minishell/builtin/ft_pwd.c ./exicution_minishell/builtin/ft_unset.c \
-			./exicution_minishell/builtin/utils_1.c 
+			./exicution_minishell/builtin/utils_1.c ./exicution_minishell/utils/ft_strtrim.c
 FLAGS= -lreadline
 OBJ_PARSING = $(SRC_PARSING:.c=.o)
 

@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/14 18:23:22 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/15 16:58:41 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,13 +52,13 @@ static void handle_cmd_errors(char *cmd_path)
 {
     if(cmd_path)
 	{
-	 ft_putstr_fd_up("minishell: ", 2);
+	    ft_putstr_fd_up("minishell: ", 2);
         ft_putstr_fd_up(cmd_path, 2);
         ft_putstr_fd_up(": execution failed\n", 2);
         free(cmd_path);
 	}
 	else
-	    ft_putstr_fd_up("minishell: command error\n", 2);
+	    ft_putstr_fd_up("minishell-1: command error\n", 2);
     exit(1);
 }
 
@@ -67,9 +67,11 @@ static void cmd_process(t_cmd *cmd, char **env)
     char *cmd_path;
     // char **cmd_arg;
     // char **cmd_arg;
-    if (!cmd || !cmd->cmd || !cmd->cmd[0])
+    if (!cmd)
         handle_cmd_errors(NULL);
     redirections(cmd); // that's to handel the rederections
+    if (!cmd->cmd || !cmd->cmd[0])
+        handle_cmd_errors(NULL);
     // cmd_arg = split_cmd(cmd);
     cmd_path = find_path(cmd->cmd[0], env);
     if (!cmd_path)
@@ -113,7 +115,8 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env)
         }
 
         pid = fork();
-        if (pid == 0) {
+        if (pid == 0) 
+        {
             // Child process
             if (i > 0) {
                 dup2(prev_pipe, STDIN_FILENO);
@@ -166,12 +169,6 @@ int exicut(t_cmd **cmd, t_env *env_list)
         return (1);
     t_cmd *current = *cmd;
     char **env = convert(env_list);
-    // int i = 0;
-    // while (env[i])
-    // {
-    //     printf("%s\n",env[i]);
-    //     i++;
-    // }
     while (current)
     {
         cmd_count++;

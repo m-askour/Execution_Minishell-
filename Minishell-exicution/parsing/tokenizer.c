@@ -14,66 +14,114 @@
 
 void print_error(t_token *head, char *val)
 {
-    ft_putstr_fd("minishell: syntax error near unexpected token`'\n",2,0);
-    if(head)
+    ft_putstr_fd("minishell: syntax error near unexpected token`'\n", 2, 0);
+    if (head)
         free_tokens(head, NULL);
-    if(val)
+    if (val)
         free(val);
 }
 
-t_token *handle_operator_or_word(char *str, int *i, int start, t_token **head)
+static int is_quote(char c)
 {
-    char *val = NULL;
-    t_token_type type;
+    return (c == '\'' || c == '"');
+}
 
-    if (is_operator(str[*i]))
+t_token *handle_word_with_quotes(char *str, int *i, t_token **head)
+{
+    int start = *i;
+    int in_quotes = 0;
+    char quote_type = 0;
+    char *val = NULL;
+    
+    while (str[*i])
     {
-        if (str[*i] == '\\' || str[*i] == ';')
-            return (free(val), NULL);
-        else if ((str[*i] == '>' || str[*i] == '<') && str[*i] == str[*i+1])
+        if (is_quote(str[*i]))
         {
-            val = ft_strndup(&str[*i], 2);
-            *i += 2;
-        }
-        else
-            val =ft_strndup(&str[(*i)++], 1);
-        type = get_token_type(val);
-    }
-    else
-    {
-        while (str[*i] && !ft_isspace(str[*i]) && !is_operator(str[*i]))
+            if (!in_quotes)
+            {
+                in_quotes = 1;
+                quote_type = str[*i];
+            }
+            else if (str[*i] == quote_type)
+            {
+                in_quotes = 0;
+                quote_type = 0;
+            }
             (*i)++;
-        val = ft_strndup(&str[start], *i - start);
-        type = TOKEN_WORD;
+            continue ;
+        }
+        if (!in_quotes && (ft_isspace(str[*i]) || is_operator(str[*i])))
+            break;
+            
+        (*i)++;
     }
-    if (val)
+
+    if (in_quotes)
     {
-        t_token *new = new_token(val, type);
-        if (!new)
-            return (free(val), NULL);
-        add_token(head, new);
+        print_error(*head, NULL);
+        return (NULL);
     }
+    val = ft_strndup(&str[start], *i - start);
+    if (!val)
+        return (NULL);
+        
+    t_token *new = new_token(val, TOKEN_WORD);
+    if (!new)
+        return (free(val), NULL);
+        
+    add_token(head, new);
     return (*head);
 }
 
+t_token *handle_operator(char *str, int *i, t_token **head)
+{
+    char *val = NULL;
+    t_token_type type;
+    
+    if (str[*i] == '\\' || str[*i] == ';')
+        return (NULL);
+    else if ((str[*i] == '>' || str[*i] == '<') && str[*i] == str[*i+1])
+    {
+        val = ft_strndup(&str[*i], 2);
+        *i += 2;
+    }
+    else
+        val = ft_strndup(&str[(*i)++], 1);
+    type = get_token_type(val);
+
+    t_token *new = new_token(val, type);
+    if (!new)
+        return (free(val), NULL);
+        
+    add_token(head, new);
+    return (*head);
+}
 
 t_token *string_tokens(char *str)
 {
     t_token *head = NULL;
     int i = 0;
-    int start;
 
-    if(str[i] == '|')
+    if (str[i] == '|')
         return (NULL);
+        
     while (str[i])
     {
         while (ft_isspace(str[i]))
-            i++;
+           i++;       
         if (!str[i])
-            break;
-        start = i;
-        if (!handle_operator_or_word(str, &i, start, &head))
+            break ;
+        if (is_operator(str[i]))
+        {
+            if (!handle_operator(str, &i, &head))
                 return (NULL);
+        }
+        else
+        {
+            if (!handle_word_with_quotes(str, &i, &head))
+                return (NULL);
+        }
     }
+    
     return (head);
 }

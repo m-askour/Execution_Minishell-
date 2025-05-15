@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 16:51:22 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/06 18:48:36 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/14 20:29:02 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static int check_new_line(char *cmd)
             i++;
     while (cmd[i])
     {
-        printf("%c\n",cmd[i]);
+        // printf("%c\n",cmd[i]);
         if (cmd[i] != 'n')
             return (0);
         i++;

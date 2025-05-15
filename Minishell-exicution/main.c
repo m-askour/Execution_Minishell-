@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/14 16:51:49 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/15 15:41:52 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include "minishell.h"
 
-// this the main is just for testing
+// this main for marge
 int main(int ac,char **av,char **env)
 {
     (void)ac;
@@ -22,7 +22,9 @@ int main(int ac,char **av,char **env)
     char        *input;
     t_token     *tokens;
     t_cmd       *commands;
-    t_env *env_list = file_inv(env);
+    t_env *env_list;
+    
+    env_list = file_inv(env);
     while (1)
     {
         input = readline("minishell$ ");
@@ -54,6 +56,9 @@ int main(int ac,char **av,char **env)
         exicut(&commands, env_list);
         free_tokens(tokens, input);
     }
+    //free the env
+    
+    // free_env_list(env_list);
     return (0);
 }
 

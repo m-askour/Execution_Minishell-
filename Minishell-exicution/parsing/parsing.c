@@ -14,7 +14,6 @@
 
 static char *process_quoted_value(char *val, t_token *head)
 {
-    char    quote;
     int     len;
     char    *new_val;
     int     i;
@@ -25,27 +24,31 @@ static char *process_quoted_value(char *val, t_token *head)
     if (!val)
         return (print_error(head, NULL), NULL);
     len = ft_strlen(val);
-    new_val = malloc(len + 1);
+    new_val = malloc(len + 1); // Might want +3 for safety in future cases
     if (!new_val)
         return (print_error(head, NULL), NULL);
     while (i < len)
     {
         if (val[i] == '\'' || val[i] == '\"')
         {
-            quote = val[i++];
+            char quote = val[i];
+            new_val[j++] = val[i++]; // Copy opening quote
             while (i < len && val[i] != quote)
                 new_val[j++] = val[i++];
             if (i < len)
-                i++;
+                new_val[j++] = val[i++]; // Copy closing quote
             else
                 return (print_error(NULL, new_val), NULL);
         } 
         else
+        {
             new_val[j++] = val[i++];
+        }
     }
     new_val[j] = '\0';
     return new_val;
 }
+
 
 static int process_token(t_token *current, t_token *head)
 {
@@ -71,7 +74,7 @@ t_token *check_quoted(char *str)
     head = string_tokens(str);
     current = head;
     if (!head)
-        return (print_error(NULL, NULL), NULL);
+        return (NULL);
     while (current)
     {
         if (!process_token(current, head))

@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/14 17:10:15 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/15 15:15:57 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 
 // #define PATH_MAX 4096
 
+
 typedef enum e_token_type
 {
 	TOKEN_WORD,      // command or argument
@@ -48,6 +49,7 @@ typedef struct s_token
 {
 	char            *value;         // the actual string (e.g. "ls", ">", "file.txt")
 	t_token_type    type;           // type of token
+	char            quote_type;  // '\"', '\'', or 0 (no quotes)
 	struct s_token  *next;          // pointer to next token
 }   t_token;
 
@@ -64,6 +66,10 @@ typedef struct s_cmd
 	int			file_count; // number of files
 	struct s_cmd	*next; // pointer to next command
 }	t_cmd;
+
+
+
+
 
 //this struct where i str all the infermation of env
 typedef struct s_env
@@ -146,7 +152,7 @@ int	ft_isalpha_up(int c);
 // int	ft_isalnum(int c);
 char	*ft_strstr(const char *haystack, const char *needle);
 
-
+char	*ft_strtrim(char const *s1, char const *set);
 /*---------------exicution_util-----------------------*/
 int exicut(t_cmd **cmd, t_env *env_list);
 // int execute_single_command(t_cmd **cmd, char **envp);
