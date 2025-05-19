@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/15 16:58:41 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/16 18:34:53 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,10 @@ static void execute_single_command(t_cmd **cmd, char **envp)
     id = fork();
     // printf("single_command\n");
     if (id == 0)
+    {
+        signal(SIGQUIT, handler_sig);
         cmd_process(*cmd,envp);
+    }
     else if (id > 0)
         waitpid(id, &status, 0);
     else
@@ -117,6 +120,7 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env)
         pid = fork();
         if (pid == 0) 
         {
+            signal(SIGQUIT, handler_sig);
             // Child process
             if (i > 0) {
                 dup2(prev_pipe, STDIN_FILENO);

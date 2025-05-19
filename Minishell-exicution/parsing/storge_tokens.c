@@ -34,6 +34,8 @@ static int parse_arguments(t_cmd *cmd, t_token **tokens)
         if (current->type == TOKEN_WORD)
         {
             cmd->cmd[arg_i++] = ft_strdup(current->value);
+            if (!cmd->cmd[arg_i - 1])
+                return 0;
         }
         else if (ft_isredirect(current->type))
         {
@@ -47,11 +49,10 @@ static int parse_arguments(t_cmd *cmd, t_token **tokens)
                 ft_putstr_fd("'\n", 2, 0);
                 return 0;
             }
-            current = current->next; // Skip the filename
+            current = current->next;
         }
         current = current->next;
     }
-
     cmd->cmd[arg_i] = NULL;
     *tokens = current;
     return 1;
@@ -79,7 +80,9 @@ static int parse_redirections(t_cmd *cmd, t_token **tokens)
             file = init_mfile();
             if (!file)
                 return 0;
-            file->name = ft_strdup(current->next->value); // Quotes preserved
+            file->name = ft_strdup(current->next->value);
+            if(!file->name)
+                return (free(file), 0);
             file->type = current->type;
             if (!file->name)
                 return (free(file), 0);
@@ -101,14 +104,12 @@ static t_cmd *parse_single_command(t_token **tokens)
     cmd = init_cmd();
     if (!cmd)
         return NULL;
-
     cmd->cmd = malloc(sizeof(char *) * (argc + 1));
     if (!cmd->cmd)
         return (free(cmd), NULL);
     cmd->files = malloc(sizeof(t_file) * (argc + 1));
     if (!cmd->files)
         return (free(cmd->cmd), free(cmd), NULL);
-
     if (!parse_arguments(cmd, tokens) || !parse_redirections(cmd, &start))
         return (free(cmd),NULL);
 

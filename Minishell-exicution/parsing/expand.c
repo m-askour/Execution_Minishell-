@@ -12,54 +12,6 @@
 
 #include "../minishell.h"
 
-static int	ft_intlen(int n)
-{
-	int	len;
-
-	if (n == 0)
-		return (1);
-
-	len = 0;
-	if (n < 0)
-		len++;
-	while (n != 0)
-	{
-		len++;
-		n /= 10;
-	}
-	return (len);
-}
-
-char	*ft_itoa(int n)
-{
-	int		len;
-	char	*str;
-	long	nb = (long)n;
-
-	len = ft_intlen(n);
-	str = (char *)malloc(sizeof(char) * (len + 1));
-	if (!str)
-		return (NULL);
-
-	str[len] = '\0';
-	if (nb == 0)
-	{
-		str[0] = '0';
-		return (str);
-	}
-
-	if (nb < 0)
-	{
-		str[0] = '-';
-		nb = -nb;
-	}
-	while (nb > 0)
-	{
-		str[--len] = (nb % 10) + '0';
-		nb /= 10;
-	}
-	return (str);
-}
 
 char *ft_exit_status(char *cmd)
 {

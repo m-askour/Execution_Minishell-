@@ -38,7 +38,9 @@ t_file	*init_mfile(void)
 
 t_token	*new_token(char *val, t_token_type type)
 {
-    t_token *token = malloc(sizeof(t_token));
+    t_token *token;
+
+    token = malloc(sizeof(t_token));
     if (!token)
         return NULL;
     token->value = val;

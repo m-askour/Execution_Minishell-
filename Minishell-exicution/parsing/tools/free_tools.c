@@ -65,9 +65,13 @@ void free_tokens(t_token *tokens, char *input)
         temp = tokens;
         tokens = tokens->next;
         free(temp->value);
+        temp->value = NULL;
         free(temp);
+        temp = NULL;
     }
-    free(input);
+    if (input)
+        free(input);
+    input = NULL;
 }
 
 void free_cmd_list(t_cmd *cmd_head)

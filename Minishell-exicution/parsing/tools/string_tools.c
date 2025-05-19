@@ -139,19 +139,15 @@ char	*ft_strcat(char *dest, const char *src)
 	int	j;
 
 	i = 0;
-	// Trouver la fin de la chaîne dest
 	while (dest[i] != '\0')
 		i++;
-
 	j = 0;
-	// Copier les caractères de src à la suite de dest
 	while (src[j] != '\0')
 	{
 		dest[i + j] = src[j];
 		j++;
 	}
-	dest[i + j] = '\0'; // Terminer la nouvelle chaîne
-
+	dest[i + j] = '\0';
 	return (dest);
 }
 

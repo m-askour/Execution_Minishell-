@@ -1,5 +1,6 @@
 CC = cc 
-CFLAGS = -Wall -Wextra -Werror -fsanitize=address -o rl_replace_line 
+CFLAGS = -Wall -Wextra -Werror -I /mnt/homes/maskour/.brew/opt/readline/include
+LDFLAGS = -L /mnt/homes/maskour/.brew/opt/readline/lib
 SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./parsing/tools/init_tools.c \
 			./parsing/tools/string_tools.c  ./parsing/tools/free_tools.c    ./parsing/tools/print_file.c\
 			./parsing/parsing.c             ./parsing/storge_tokens.c     ./parsing/tokenizer.c ./parsing/expand.c  main.c\
@@ -15,7 +16,8 @@ SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./pa
 			./exicution_minishell/builtin/ft_pwd.c ./exicution_minishell/builtin/ft_unset.c \
 			./exicution_minishell/builtin/utils_1.c ./exicution_minishell/utils/ft_strtrim.c \
 			./exicution_minishell/signals/signals.c
-FLAGS= -lreadline
+
+FLAGS= -lreadline 
 OBJ_PARSING = $(SRC_PARSING:.c=.o)
 
 NAME = minishell
@@ -23,10 +25,10 @@ NAME = minishell
 all : $(NAME)
 
 $(NAME) : $(OBJ_PARSING)
-	$(CC) $(CFLAGS) ${OBJ_PARSING} -o $@ -lreadline
+	$(CC) $(CFLAGS) ${OBJ_PARSING} -o $@ -lreadline $(LDFLAGS)
 
 %.o : %.c minishell.h
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS)  -c $< -o $@
 
 clean : 
 	rm -rf $(OBJ_PARSING)

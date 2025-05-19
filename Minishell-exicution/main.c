@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/15 21:07:47 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/19 21:54:43 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int main(int ac,char **av,char **env)
     t_cmd       *commands;
     t_env *env_list;
     env_list = file_inv(env);
-    signal(SIGINT, handler);
+    signal(SIGINT, handler_sig);    
     while (1)
     {
         input = readline("minishell$ ");
@@ -39,7 +39,18 @@ int main(int ac,char **av,char **env)
         if (!tokens)
             continue ;
         commands = parse_commands(tokens);
+        if (!commands)
+        {
+            free_tokens(tokens, input);
+            continue ;
+        }
         commands = expand_cmd_list(commands);
+        if (!commands)
+        {
+            free_cmd_list(commands);
+            free_tokens(tokens, input);
+            continue ;
+        }
         if (commands)
         {
             t_cmd *current = commands;
@@ -54,6 +65,8 @@ int main(int ac,char **av,char **env)
             }
         }
         exicut(&commands, env_list);
+        if(commands)
+            free_cmd_list(commands);
         free_tokens(tokens, input);
     }
     //free the env
