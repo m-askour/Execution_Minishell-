@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 16:50:12 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/14 18:30:08 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/22 13:14:03 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,11 @@ static void extra_key_value(char *input, char **key, char **value)
     else
         *key = input;
 }
-static void add_env_export(t_env *env, char *key, char *value) 
+static void add_env_export(t_env *env, char *key, char *value)
 {
     t_env *new_node = malloc(sizeof(t_env));
-    if (!new_node) return;
+    if (!new_node) 
+        return;
 
     char *env_entry;
     if (value) {
@@ -67,11 +68,11 @@ static void add_env_export(t_env *env, char *key, char *value)
         env_entry = ft_strjoin(key, "=");
     }
 
-    if (!env_entry) {
+    if (!env_entry) 
+    {
         free(new_node);
         return;
     }
-
     new_node->data_env = env_entry;
     new_node->next = NULL;
 
@@ -84,6 +85,7 @@ static void add_env_export(t_env *env, char *key, char *value)
         current->next = new_node;
     }
 }
+
 // i use babel sort+
 static int size_list(t_env *env)
 {

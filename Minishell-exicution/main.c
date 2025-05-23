@@ -6,14 +6,18 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/19 21:54:43 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/22 12:47:14 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 
 #include "minishell.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <string.h>
 // this main for marge
 int main(int ac,char **av,char **env)
 {
@@ -24,7 +28,8 @@ int main(int ac,char **av,char **env)
     t_cmd       *commands;
     t_env *env_list;
     env_list = file_inv(env);
-    signal(SIGINT, handler_sig);    
+    signal(SIGINT, handler_sig); 
+    signal(SIGQUIT, handler_sig);   
     while (1)
     {
         input = readline("minishell$ ");

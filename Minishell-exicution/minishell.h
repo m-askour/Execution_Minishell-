@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/19 21:56:03 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/22 12:14:57 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ t_token			*new_token(char *val, t_token_type type);
 
 
 /*---------------exicution_util-----------------------*/
-char	*ft_itoa(int n);
+// char	*ft_itoa(int n);
 char	**ft_split_up(char const *s, char c);
 char	*ft_strchr(const char *src, int c);
 char	*ft_strdup(const char *s1);
@@ -167,7 +167,7 @@ void ft_echo(t_cmd **cmd);
 void ft_env(t_env *env_list);
 void ft_exit(t_cmd **cmd);
 void ft_pwd();
-void ft_unset(t_cmd **cmd, t_env *env);
+t_env *ft_unset(t_cmd **cmd, t_env *env);
 void ft_export(t_cmd **cmd, t_env *envp);
 
 
@@ -181,4 +181,6 @@ t_env *file_inv(char **env);
 
 /*---------------signals-----------------------*/
 void handler_sig(int signal);
+
+
 #endif
