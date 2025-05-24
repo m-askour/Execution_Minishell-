@@ -6,12 +6,13 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/16 18:34:53 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 13:55:23 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../minishell.h"
+
 static char **convert(t_env *env_list)
 {
     int count = 0;
@@ -189,5 +190,6 @@ int exicut(t_cmd **cmd, t_env *env_list)
     }
     else
         execute_pipeline(cmd, cmd_count,env);
+    free(env);
     return (0);
 }

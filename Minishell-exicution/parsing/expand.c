@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
+/*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 14:43:32 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/13 12:15:00 by ahari            ###   ########.fr       */
+/*   Updated: 2025/05/24 13:51:03 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,11 +169,18 @@ t_cmd *expand_file(t_cmd *cmd)
 	int i = 0;
 	if (!cmd)
 		return NULL;
+	char *file;
+
 	while (i < cmd->file_count)
 	{
-		char *expanded_file = found_env(ft_strdup(cmd->files[i].name));
+		file = ft_strdup(cmd->files[i].name);
+		if (!file)
+			return(NULL);
+		char *expanded_file = found_env(file);
+		free(file);
 		if (!expanded_file)
 		{
+			free(expanded_file);
 			write(2, "minishell: ", 12);
 			write(2, cmd->files[i].name, strlen(cmd->files[i].name));
 			write(2, ": ambiguous redirect\n", 22);
@@ -200,5 +207,5 @@ t_cmd *expand_cmd_list(t_cmd *cmd_head)
 			return NULL;
 		current = current->next;
 	}
-	return cmd_head;
+	return (cmd_head);
 }

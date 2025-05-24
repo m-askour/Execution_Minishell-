@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/22 12:14:57 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 13:36:38 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,7 @@ char *search_env(t_env *env, const char *key);
 t_env *new_env(char *data_env);
 void add_env(t_env **env_list, t_env *new_node);
 t_env *file_inv(char **env);
+void free_env_list(t_env *env_list);
 
 
 

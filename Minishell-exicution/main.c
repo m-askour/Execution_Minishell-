@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/22 12:47:14 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 13:36:46 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 #include "minishell.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <string.h>
+
 // this main for marge
 int main(int ac,char **av,char **env)
 {
@@ -35,7 +32,7 @@ int main(int ac,char **av,char **env)
         input = readline("minishell$ ");
         if (!input)
         {
-            printf("exit\n");
+            printf("exit1\n");
             break ;
         }
         if (*input)
@@ -75,7 +72,7 @@ int main(int ac,char **av,char **env)
         free_tokens(tokens, input);
     }
     //free the env
-    
+    free_env_list(env_list);
     // free_env_list(env_list);
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:02:07 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/22 11:43:42 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 13:45:16 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,6 @@ static void *get_rundem_name(void)
             free(count_str);
             return (NULL);
         }
-
         tmp = ft_strjoin(filename, count_str);
         free(filename);
         free(count_str);
@@ -137,11 +136,11 @@ static void *get_rundem_name(void)
 static void function_herdoc(t_file *file)
 {
 	char *filename = get_rundem_name();//THIS TO CREAT RANDEM FILE;
-	// if (!filename)// this for the open can't 
-	// {
-	// 	perror ("cant creat temporory file");
-	// 	exit(1);
-	// }
+	if (!filename)// this for the open can't 
+	{
+		perror ("cant creat temporory file");
+		exit(1);
+	}
 	int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC ,0644);
 	if (fd == -1)// this for the open can't 
 	{
@@ -169,6 +168,7 @@ static void function_herdoc(t_file *file)
 	close(fd);
 	fd = open(filename,O_RDONLY);
 	unlink(filename);// delet the fd after opening 
+	free(filename);
 	dup2(fd,0);
 	close(fd);
 }
