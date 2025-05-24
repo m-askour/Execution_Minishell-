@@ -6,145 +6,179 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 14:43:32 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/24 13:51:03 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 20:45:51 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
 
 char *ft_exit_status(char *cmd)
 {
 	return cmd;
 }
 
+int is_valid_var_char(char c)
+{
+	return (ft_isalnum(c) || c == '_');
+}
+
+int get_var_name_length(char *str, int start)
+{
+	int len = 0;
+	int i = start;
+	
+	while (str[i] && is_valid_var_char(str[i]))
+	{
+		len++;
+		i++;
+	}
+	return len;
+}
+
+char *create_literal_var(char *cmd, int var_start, int var_len)
+{
+	char *literal = malloc(var_len + 2);
+	if (!literal)
+		return NULL;
+	
+	literal[0] = '$';
+	ft_strncpy(literal + 1, cmd + var_start, var_len);
+	literal[var_len + 1] = '\0';
+	return literal;
+}
+
+char *build_new_command(char *cmd, int pos, char *replacement, int skip_len)
+{
+	char *new_cmd;
+	int new_len = ft_strlen(cmd) - skip_len + ft_strlen(replacement);	
+	new_cmd = malloc(new_len + 1);
+	if (!new_cmd)
+		return NULL;
+	ft_strncpy(new_cmd, cmd, pos);
+	new_cmd[pos] = '\0';
+	ft_strcat(new_cmd, replacement);
+	ft_strcat(new_cmd, cmd + pos + skip_len);
+	return new_cmd;
+}
+
+char *handle_special_var(char *cmd, int pos)
+{
+	char *replacement = NULL;
+	char *new_cmd;
+	
+	if (cmd[pos + 1] == '?')
+		replacement = ft_exit_status(cmd);
+	else if (cmd[pos + 1] == '0')
+		replacement = ft_strdup("./minishell");
+	else if (cmd[pos + 1] == '$')
+		replacement = ft_itoa(getpid());
+	else
+		return NULL;
+	if (!replacement)
+		return NULL;
+	new_cmd = build_new_command(cmd, pos, replacement, 2);
+	free(replacement);
+	return new_cmd;
+}
+
+char *handle_env_var(char *cmd, int pos)
+{
+	int var_start = pos + 1;
+	int var_len = get_var_name_length(cmd, var_start);
+	char *new_cmd;
+	if (var_len == 0)
+		return NULL;
+	char *env_name = ft_substr(cmd, var_start, var_len);
+	if (!env_name)
+		return NULL;
+	char *env_value = getenv(env_name);
+	free(env_name);
+	if (!env_value)
+		new_cmd = build_new_command(cmd, pos, "", var_len + 1);
+	else
+		new_cmd = build_new_command(cmd, pos, env_value, var_len + 1);
+	return new_cmd;
+}
+
 char *found_env(char *cmd)
 {
-	int i = 0;
-	int j = 0;
+	int pos = 0;
+	int in_double_quotes = 0;
 	char *new_cmd;
 
 	if (!cmd)
 		return NULL;
-	if (cmd[0] == '\'')
+	if (cmd[0] == '\'' && cmd[ft_strlen(cmd) - 1] == '\'')
 	{
-		char *temp = malloc(ft_strlen(cmd));
+		int len = ft_strlen(cmd);
+		char *temp = malloc(len - 1);
 		if (!temp)
 			return NULL;
-		ft_strncpy(temp, cmd + 1, ft_strlen(cmd) - 2);
+		ft_strncpy(temp, cmd + 1, len - 2);
+		temp[len - 2] = '\0';
 		free(cmd);
 		return temp;
 	}
-	while (cmd[j])
+	while (cmd[pos])
 	{
-		if (cmd[j] == '$' && cmd[j + 1] == '?')
+		if (cmd[pos] == '"' && (pos == 0 || cmd[pos - 1] != '\\'))
+			in_double_quotes = !in_double_quotes;
+		if (cmd[pos] == '$' && (pos == 0 || cmd[pos - 1] != '\\'))
 		{
-			char *exit_status = ft_exit_status(cmd);
-			if (!exit_status)
-				return NULL;
-			new_cmd = malloc(ft_strlen(cmd) - 2 + ft_strlen(exit_status) + 1);
-			if (!new_cmd)
-				return (free(exit_status), NULL);
-			ft_strncpy(new_cmd, cmd, j);
-			new_cmd[j] = '\0';
-			ft_strcat(new_cmd, exit_status);
-			ft_strcat(new_cmd, cmd + j + 2);
-			free(exit_status);
-			free(cmd);
-			return new_cmd;
-		}
-		if (cmd[j] == '$' && cmd[j + 1] == '0')
-		{
-			char *name = ft_strdup("./minishell");
-			if (!name)
-				return NULL;
-			new_cmd = malloc(ft_strlen(cmd) - 2 + ft_strlen(name) + 1);
-			if (!new_cmd)
-				return (free(name), NULL);
-			ft_strncpy(new_cmd, cmd, j);
-			new_cmd[j] = '\0';
-			ft_strcat(new_cmd, name);
-			ft_strcat(new_cmd, cmd + j + 2);
-			free(name);
-			free(cmd);
-			return new_cmd;
-		}
-		if (cmd[j] == '$' && cmd[j + 1] == '$')
-		{
-			char *pid = ft_itoa(getpid());
-			if (!pid)
-				return NULL;
-			new_cmd = malloc(ft_strlen(cmd) - 2 + ft_strlen(pid) + 1);
-			if (!new_cmd)
-				return (free(pid), NULL);
-			ft_strncpy(new_cmd, cmd, j);
-			new_cmd[j] = '\0';
-			ft_strcat(new_cmd, pid);
-			ft_strcat(new_cmd, cmd + j + 2);
-			free(pid);
-			free(cmd);
-			return new_cmd;
-		}
-		if (cmd[j] == '$')
-		{
-			i = j + 1;
-			int quote_count = 0;
+			int i = pos + 1;
 			while (cmd[i] == '"')
-			{
 				i++;
-				quote_count++;
+			if (cmd[i] == '\0' || (!is_valid_var_char(cmd[i]) && 
+					cmd[i] != '?' && cmd[i] != '0' && cmd[i] != '$'))
+			{
+				pos++;
+				continue;
 			}
-			if (cmd[i] == '\0')
-				return NULL;
+			if (cmd[i] == '?' || cmd[i] == '0' || cmd[i] == '$')
+			{
+				new_cmd = handle_special_var(cmd, pos);
+				if (new_cmd)
+				{
+					free(cmd);
+					return found_env(new_cmd);
+				}
+			}
+			// Handle normalization like $""""USER → $USER chof hadi mohammed
 			int start = i;
-			while (cmd[i] && (ft_isalnum(cmd[i]) || cmd[i] == '_'))
+			while (ft_isalnum(cmd[i]) || cmd[i] == '_')
 				i++;
-			int len = i - start;
-			if (len == 0)
-				return NULL;
-			if (quote_count > 0)
+			int var_len = i - start;
+			if (var_len > 0)
 			{
-				char *literal = malloc(len + 2);
-				if (!literal)
+				int before_len = pos;
+				int after_len = ft_strlen(cmd + i);
+				int total_len = before_len + 1 + var_len + after_len + 1;
+				char *result = malloc(total_len);
+				if (!result)
+				{
+					free(cmd);
 					return NULL;
-				literal[0] = '$';
-				ft_strncpy(literal + 1, cmd + start, len);
-				literal[len + 1] = '\0';
+				}
+				ft_strncpy(result, cmd, before_len);
+				result[before_len] = '$';
+				ft_strncpy(result + before_len + 1, cmd + start, var_len);
+				ft_strcpy(result + before_len + 1 + var_len, cmd + i);
+				result[total_len - 1] = '\0';
 				free(cmd);
-				return literal;
+				return result;
 			}
-			char *env = ft_substr(cmd, start, len);
-			if (!env)
-				return NULL;
-			char *value = getenv(env);
-			free(env);
-			if (!value)
+			new_cmd = handle_env_var(cmd, pos);
+			if (new_cmd)
 			{
-				char *temp = malloc(j + ft_strlen(cmd + i) + 1);
-				if (!temp)
-					return NULL;
-				ft_strncpy(temp, cmd, j);
-				temp[j] = '\0';
-				ft_strcat(temp, cmd + i);
 				free(cmd);
-				return temp;
+				return found_env(new_cmd);
 			}
-			new_cmd = malloc(j + ft_strlen(value) + ft_strlen(cmd + i) + 1);
-			if (!new_cmd)
-				return NULL;
-			ft_strncpy(new_cmd, cmd, j);
-			new_cmd[j] = '\0';
-			ft_strcat(new_cmd, value);
-			ft_strcat(new_cmd, cmd + i);
-			char *result = found_env(new_cmd);
-			return result;
 		}
-		j++;
+		pos++;
 	}
-	char *returned_cmd = ft_strdup(cmd);
-	if (!returned_cmd)
-		return (free(cmd), NULL);
-	return returned_cmd;
+	char *result = ft_strdup(cmd);
+	free(cmd);
+	return result;
 }
 
 t_cmd *expand_cmd(t_cmd *cmd)
@@ -169,18 +203,11 @@ t_cmd *expand_file(t_cmd *cmd)
 	int i = 0;
 	if (!cmd)
 		return NULL;
-	char *file;
-
 	while (i < cmd->file_count)
 	{
-		file = ft_strdup(cmd->files[i].name);
-		if (!file)
-			return(NULL);
-		char *expanded_file = found_env(file);
-		free(file);
+		char *expanded_file = found_env(ft_strdup(cmd->files[i].name));
 		if (!expanded_file)
 		{
-			free(expanded_file);
 			write(2, "minishell: ", 12);
 			write(2, cmd->files[i].name, strlen(cmd->files[i].name));
 			write(2, ": ambiguous redirect\n", 22);
@@ -207,5 +234,5 @@ t_cmd *expand_cmd_list(t_cmd *cmd_head)
 			return NULL;
 		current = current->next;
 	}
-	return (cmd_head);
+	return cmd_head;
 }

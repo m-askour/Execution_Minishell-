@@ -6,13 +6,24 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/24 13:55:23 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 20:38:22 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../minishell.h"
-
+void free_env_list(t_env *env_list)
+{
+    t_env *current;
+    current = env_list;
+    while (current)
+    {
+        env_list = current->next;
+        free(current->data_env);
+        free(current);
+        current = env_list;
+    }
+}
 static char **convert(t_env *env_list)
 {
     int count = 0;
@@ -68,11 +79,9 @@ static void cmd_process(t_cmd *cmd, char **env)
     char *cmd_path;
     // char **cmd_arg;
     // char **cmd_arg;
-    if (!cmd)
+    if (!cmd || !cmd->cmd || !cmd->cmd[0])
         handle_cmd_errors(NULL);
     redirections(cmd); // that's to handel the rederections
-    if (!cmd->cmd || !cmd->cmd[0])
-        handle_cmd_errors(NULL);
     // cmd_arg = split_cmd(cmd);
     cmd_path = find_path(cmd->cmd[0], env);
     if (!cmd_path)
@@ -92,10 +101,7 @@ static void execute_single_command(t_cmd **cmd, char **envp)
     id = fork();
     // printf("single_command\n");
     if (id == 0)
-    {
-        signal(SIGQUIT, handler_sig);
         cmd_process(*cmd,envp);
-    }
     else if (id > 0)
         waitpid(id, &status, 0);
     else
@@ -121,7 +127,6 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env)
         pid = fork();
         if (pid == 0) 
         {
-            signal(SIGQUIT, handler_sig);
             // Child process
             if (i > 0) {
                 dup2(prev_pipe, STDIN_FILENO);

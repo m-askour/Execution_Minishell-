@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   store_tokens.c                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/21 17:49:49 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/13 16:00:00 by ahari            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../minishell.h"
 
 static int count_commands(t_token *tokens)
@@ -24,6 +12,18 @@ static int count_commands(t_token *tokens)
     return count;
 }
 
+static int count_redirections(t_token *tokens)
+{
+    int count = 0;
+    while (tokens && tokens->type != TOKEN_PIPE)
+    {
+        if (ft_isredirect(tokens->type))
+            count++;
+        tokens = tokens->next;
+    }
+    return count;
+}
+
 static int parse_arguments(t_cmd *cmd, t_token **tokens)
 {
     int arg_i = 0;
@@ -32,21 +32,16 @@ static int parse_arguments(t_cmd *cmd, t_token **tokens)
     while (current && current->type != TOKEN_PIPE)
     {
         if (current->type == TOKEN_WORD)
-        {
             cmd->cmd[arg_i++] = ft_strdup(current->value);
-            if (!cmd->cmd[arg_i - 1])
-                return 0;
-        }
         else if (ft_isredirect(current->type))
         {
             if (!current->next || current->next->type != TOKEN_WORD)
             {
-                ft_putstr_fd("bash: syntax error near unexpected token `", 2, 0);
+                ft_putstr_fd("bash: syntax error near unexpected token ` \n", 2, 0);
                 if (current->next && current->next->value)
                     ft_putstr_fd(current->next->value, 2, 0);
                 else
-                    ft_putstr_fd("newline", 2, 0);
-                ft_putstr_fd("'\n", 2, 0);
+                    ft_putstr_fd("newline \n", 2, 0);
                 return 0;
             }
             current = current->next;
@@ -81,11 +76,12 @@ static int parse_redirections(t_cmd *cmd, t_token **tokens)
             if (!file)
                 return 0;
             file->name = ft_strdup(current->next->value);
-            if(!file->name)
-                return (free(file), 0);
             file->type = current->type;
             if (!file->name)
-                return (free(file), 0);
+            {
+                free(file);
+                return 0;
+            }
             cmd->files[cmd->file_count++] = *file;
             free(file);
             current = current->next;
@@ -100,18 +96,22 @@ static t_cmd *parse_single_command(t_token **tokens)
     t_cmd *cmd;
     t_token *start = *tokens;
     int argc = count_args(start);
+    int redir_count = count_redirections(start);
 
     cmd = init_cmd();
     if (!cmd)
         return NULL;
+
     cmd->cmd = malloc(sizeof(char *) * (argc + 1));
     if (!cmd->cmd)
-        return (free(cmd), NULL);
-    cmd->files = malloc(sizeof(t_file) * (argc + 1));
+        return (free_cmd(cmd), NULL);
+
+    cmd->files = malloc(sizeof(t_file) * (redir_count + 1));
     if (!cmd->files)
-        return (free(cmd->cmd), free(cmd), NULL);
+        return (free_cmd(cmd), NULL);
+
     if (!parse_arguments(cmd, tokens) || !parse_redirections(cmd, &start))
-        return (free(cmd),NULL);
+        return (free_cmd(cmd), NULL);
 
     while (*tokens && (*tokens)->type != TOKEN_PIPE)
         *tokens = (*tokens)->next;
@@ -132,7 +132,10 @@ t_cmd *parse_commands(t_token *tokens)
     {
         new_cmd = parse_single_command(&tokens);
         if (!new_cmd)
-            return free_cmd_list(cmd_head), NULL;
+        {
+            free_cmd_list(cmd_head);
+            return NULL;
+        }
 
         if (!cmd_head)
             cmd_head = new_cmd;
@@ -145,7 +148,8 @@ t_cmd *parse_commands(t_token *tokens)
             if (!tokens->next)
             {
                 ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2, 0);
-                return free_cmd_list(cmd_head), NULL;
+                free_cmd_list(cmd_head);
+                return NULL;
             }
             tokens = tokens->next;
         }

@@ -24,7 +24,7 @@ static char *process_quoted_value(char *val, t_token *head)
     if (!val)
         return (print_error(head, NULL), NULL);
     len = ft_strlen(val);
-    new_val = malloc(len + 1);
+    new_val = malloc(len + 1); // Might want +3 for safety in future cases
     if (!new_val)
         return (print_error(head, NULL), NULL);
     while (i < len)
@@ -32,16 +32,18 @@ static char *process_quoted_value(char *val, t_token *head)
         if (val[i] == '\'' || val[i] == '\"')
         {
             char quote = val[i];
-            new_val[j++] = val[i++];
+            new_val[j++] = val[i++]; // Copy opening quote
             while (i < len && val[i] != quote)
                 new_val[j++] = val[i++];
             if (i < len)
-                new_val[j++] = val[i++];
+                new_val[j++] = val[i++]; // Copy closing quote
             else
                 return (print_error(NULL, new_val), NULL);
         } 
         else
+        {
             new_val[j++] = val[i++];
+        }
     }
     new_val[j] = '\0';
     return new_val;

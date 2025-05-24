@@ -6,32 +6,30 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/05/24 13:36:38 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 20:38:33 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 #define MINISHELL_H
 ///the headar of all file that we will use in this project 
-#include <signal.h>//this for the signals
-#include <limits.h>//this for the limits
-#include <sys/wait.h> // Required for waitpid()
-#include <fcntl.h> // Required for open() and flags
+#include <limits.h>
+#include <fcntl.h>
 #include <stdio.h>  // perror()
-#include <readline/readline.h>  // For rl_replace_line, rl_redisplay, etc.
+#include <readline/readline.h> //for 
 #include <readline/history.h> // for readline
-#include <unistd.h> //  for getcwd() , chdir() , isatty() ,dup2(), close()
+#include <unistd.h> //  for getcwd() , chdir() , isatty()   q
 #include <sys/stat.h> // stat() & lstat() & fstat()
 #include <sys/types.h> // opendir() closedir()
-#include <dirent.h> // opendir() ,readdir() ,closedir()
+#include <dirent.h> // opendir() readdir() closedir()
 #include <string.h> // strerror() && 
-#include <sys/ioctl.h> // For ioctl()
+#include <sys/ioctl.h> //
 #include <stdlib.h> //
 #include <termios.h> //
 #include <curses.h> //
 #include <term.h> //
 #include <string.h>
-
+#include <sys/wait.h>
 // #define PATH_MAX 4096
 
 
@@ -104,6 +102,7 @@ int				ft_isredirect(t_token_type type);
 int				count_args(t_token *token);
 t_token			*check_quoted(char *str);
 t_cmd			*expand_cmd_list(t_cmd *cmd_head);
+t_cmd			*unquote_cmd_list(t_cmd *cmd_head);
 
 /*------------ tools for parsing ----------------*/
 int				is_quote(char c);
@@ -121,6 +120,8 @@ char			*ft_strncpy(char *dest, const char *src, size_t n);
 char			*ft_strcat(char *dest, const char *src);
 char			*ft_substr(const char *s, unsigned int start, size_t len);
 char			*ft_itoa(int n);
+char			*ft_strjoin(char const *s1, char const *s2);
+char			*ft_strcpy(char *dest, const char *src);
 
 /*--------------this function for tockens------------*/
 void			add_token(t_token **head, t_token *new);
@@ -135,11 +136,11 @@ t_token			*new_token(char *val, t_token_type type);
 
 
 /*---------------exicution_util-----------------------*/
-// char	*ft_itoa(int n);
+char	*ft_itoa(int n);
 char	**ft_split_up(char const *s, char c);
 char	*ft_strchr(const char *src, int c);
 char	*ft_strdup(const char *s1);
-char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strjoina(char const *s1, char const *s2);
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize);
 size_t	ft_strlcpy(char *dest, const char *src, size_t dstsize);
 size_t	ft_strlen(const char *str);
@@ -151,8 +152,9 @@ int	ft_atoi(const char *str);
 int	ft_isalpha_up(int c);
 // int	ft_isalnum(int c);
 char	*ft_strstr(const char *haystack, const char *needle);
+void free_env_list(t_env *env_list);
 
-char	*ft_strtrim(char const *s1, char const *set);
+
 /*---------------exicution_util-----------------------*/
 int exicut(t_cmd **cmd, t_env *env_list);
 // int execute_single_command(t_cmd **cmd, char **envp);
@@ -167,7 +169,7 @@ void ft_echo(t_cmd **cmd);
 void ft_env(t_env *env_list);
 void ft_exit(t_cmd **cmd);
 void ft_pwd();
-t_env *ft_unset(t_cmd **cmd, t_env *env);
+void ft_unset(t_cmd **cmd, t_env *env);
 void ft_export(t_cmd **cmd, t_env *envp);
 
 
@@ -176,12 +178,5 @@ char *search_env(t_env *env, const char *key);
 t_env *new_env(char *data_env);
 void add_env(t_env **env_list, t_env *new_node);
 t_env *file_inv(char **env);
-void free_env_list(t_env *env_list);
-
-
-
-/*---------------signals-----------------------*/
-void handler_sig(int signal);
-
 
 #endif

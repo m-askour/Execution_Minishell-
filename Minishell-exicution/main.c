@@ -6,14 +6,11 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/24 13:36:46 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/24 20:39:00 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-
 #include "minishell.h"
-#include <stdio.h>
 
 // this main for marge
 int main(int ac,char **av,char **env)
@@ -24,15 +21,14 @@ int main(int ac,char **av,char **env)
     t_token     *tokens;
     t_cmd       *commands;
     t_env *env_list;
+    
     env_list = file_inv(env);
-    signal(SIGINT, handler_sig); 
-    signal(SIGQUIT, handler_sig);   
     while (1)
     {
         input = readline("minishell$ ");
         if (!input)
         {
-            printf("exit1\n");
+            printf("exit\n");
             break ;
         }
         if (*input)
@@ -53,6 +49,13 @@ int main(int ac,char **av,char **env)
             free_tokens(tokens, input);
             continue ;
         }
+        commands = unquote_cmd_list(commands);
+        if (!commands)
+        {
+            free_cmd_list(commands);
+            free_tokens(tokens, input);
+            continue ;
+        }
         if (commands)
         {
             t_cmd *current = commands;
@@ -67,13 +70,11 @@ int main(int ac,char **av,char **env)
             }
         }
         exicut(&commands, env_list);
-        if(commands)
-            free_cmd_list(commands);
         free_tokens(tokens, input);
-    }
-    //free the env
-    free_env_list(env_list);
+        free_cmd(commands);
+    }    
     // free_env_list(env_list);
+    free_env_list(env_list);
     return (0);
 }
 
