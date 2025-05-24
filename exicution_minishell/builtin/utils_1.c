@@ -6,23 +6,12 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:39:24 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/24 13:36:31 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/06 15:41:39 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
-void free_env_list(t_env *env_list)
-{
-    t_env *current;
-    current = env_list;
-    while (current)
-    {
-        env_list = current->next;
-        free(current->data_env);
-        free(current);
-        current = env_list;
-    }
-}
+
 char *search_env(t_env *env, const char *key)
 {
     int len = ft_strlen(key);

@@ -6,13 +6,13 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 16:51:36 by maskour           #+#    #+#             */
-/*   Updated: 2025/05/22 12:17:34 by maskour          ###   ########.fr       */
+/*   Updated: 2025/05/08 18:23:01 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
 
-t_env *ft_unset(t_cmd **cmd, t_env *env)
+void ft_unset(t_cmd **cmd, t_env *env)
 {
     t_env *current = env;
     t_env *prev = NULL;
@@ -37,10 +37,9 @@ t_env *ft_unset(t_cmd **cmd, t_env *env)
                 free(to_free);
             }
             prev = current;
-            printf("this is:%s\n",current->data_env);
+            printf("htis is:%s\n",current->data_env);
             current = current->next;
         }
         i++;
     }
-    return (env);
 }
