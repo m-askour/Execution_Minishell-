@@ -108,11 +108,6 @@ int main(int ac,char **av,char **env)
         free_char_array(env_table);
     }
     // remove_env_key(&env_list, "OLDPWD");
-    while (env_list)
-    {
-        printf("%s\n", env_list->data_env);
-        env_list = env_list->next;
-    }
     free_env_list(env_list);
     free(shell_ctx);
     return (0);
