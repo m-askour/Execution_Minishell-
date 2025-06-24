@@ -1,21 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   execution.c                                        :+:      :+:    :+:   */
+/*   execut_singal_cmd.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/24 18:37:56 by maskour          ###   ########.fr       */
+/*   Created: 2025/06/24 18:38:53 by maskour           #+#    #+#             */
+/*   Updated: 2025/06/24 18:39:14 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-static void ignore_sigint(void)
-{
-	signal(SIGINT, SIG_IGN);
-}
 
 static void cmd_process(t_cmd *cmd, char **env)
 {
@@ -54,7 +49,7 @@ static void parent_process(pid_t id, int *status, t_shell *shell_ctx)
 			shell_ctx->exit_status = 1;
 }
 
-static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
+void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
 {
 	pid_t id;
 	int status;
@@ -75,71 +70,4 @@ static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
 		perror("fork failed");
 		restore_sigint();
 	}
-}
-
-static int count_cmd(t_cmd **cmd)
-{
-	t_cmd *current = *cmd;
-	int i;
-	
-	i = 0;
-	while (current)
-	{
-		i++;
-		current = current->next;
-	}
-	return (i);
-}
-static t_cmd **arr_cmd(t_cmd **cmd, int cmd_count)
-{
-		t_cmd **cmd_arr = malloc(sizeof(t_cmd *) * (cmd_count + 1));
-		if (!cmd_arr)
-			return (NULL);
-		t_cmd *current = *cmd;
-		int i = -1;
-		while ( ++i < cmd_count) 
-		{
-			cmd_arr[i] = current;
-			current = current->next;
-		}
-		cmd_arr[cmd_count] = NULL;
-		return (cmd_arr);
-}
-static int handle_multiple_cmd(char **env, t_cmd **cmd, int cmd_count, t_shell *shell_ctx)
-{
-		t_cmd **cmd_arr;
-
-		cmd_arr = arr_cmd(cmd, cmd_count);
-		if (!cmd_arr)
-		{
-			free(env);
-			return (1);
-		}
-		execute_pipeline(cmd_arr, cmd_count, env, shell_ctx);
-		free(cmd_arr);
-		return (0);
-}
-int exicut(t_cmd **cmd, t_env **env_list, t_shell *shell_ctx)
-{
-	int cmd_count;
-	if (!cmd || !*cmd || !env_list)
-		return (1);
-	char **env = convert(*env_list);
-	if (!env)
-		return (1);
-	cmd_count = count_cmd(cmd);
-	if (cmd_count == 1)
-	{
-		if (is_builtin((*cmd)->cmd[0]))
-		{
-			*env_list = execut_bultin(cmd, *env_list, shell_ctx);
-			free_env(env);
-			return (0);
-		}
-		execute_single_command(cmd, env, shell_ctx);
-	}
-	else
-		handle_multiple_cmd(env, cmd, cmd_count, shell_ctx);
-	free_env(env);
-	return (0);
 }

@@ -1,31 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   ft_putstr_fd_up.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/15 20:33:01 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/24 16:02:07 by maskour          ###   ########.fr       */
+/*   Created: 2025/06/24 15:20:21 by maskour           #+#    #+#             */
+/*   Updated: 2025/06/24 15:49:51 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
 
-void handler_sig(int signal)
+void	ft_putstr_fd_up(char *s, int fd)
 {
-	if (signal == SIGINT)
-	{
-		 write(1,"\n",1);
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-	else if (signal == SIGQUIT)
-		rl_redisplay();	
-}
+	size_t	len;
 
-void restore_sigint(void)
-{
-	signal(SIGINT, handler_sig);
+	if (!s || fd < 0)
+		return ;
+	len = 0;
+	while (s[len])
+		len++;
+	write(fd, s, len);
 }

@@ -5,8 +5,8 @@ SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./pa
 			./parsing/tools/string_tools.c  ./parsing/tools/free_tools.c    ./parsing/tools/print_file.c ./parsing/tools/tools.c\
 			./parsing/parsing.c             ./parsing/storge_tokens.c     ./parsing/tokenizer.c ./parsing/expand.c ./parsing/parsing_v2.c main.c\
 			./exicution_minishell/execution.c ./exicution_minishell/redirections.c ./exicution_minishell/pipex_util.c\
-			./exicution_minishell/utils/ft_split.c\
-			./exicution_minishell/utils/ft_strchr.c \
+			./exicution_minishell/utils/ft_split.c ./exicution_minishell/utils/ft_putstr_fd_up.c\
+			./exicution_minishell/utils/ft_strchr.c ./exicution_minishell/free_file.c\
 			./exicution_minishell/utils/ft_strlcat.c ./exicution_minishell/utils/ft_isalpha.c\
 			./exicution_minishell/utils/ft_strlcpy.c ./exicution_minishell/utils/ft_atoi.c\
 			./exicution_minishell/utils/ft_strncmp.c ./exicution_minishell/utils/ft_strnstr.c\
@@ -15,7 +15,8 @@ SRC_PARSING=./parsing/tools/split.c         ./parsing/tools/string_pasing.c ./pa
 			./exicution_minishell/builtin/ft_exit.c ./exicution_minishell/builtin/ft_export.c \
 			./exicution_minishell/builtin/ft_pwd.c ./exicution_minishell/builtin/ft_unset.c \
 			./exicution_minishell/builtin/env_utils.c ./exicution_minishell/utils/ft_strtrim.c \
-			./exicution_minishell/signals/signals.c
+			./exicution_minishell/signals/signals.c ./exicution_minishell/error_file.c \
+			./exicution_minishell/execut_multiple_pipe.c
 
 FLAGS= -lreadline 
 OBJ_PARSING = $(SRC_PARSING:.c=.o)
