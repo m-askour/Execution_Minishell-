@@ -6,7 +6,7 @@
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:04:38 by ahari             #+#    #+#             */
-/*   Updated: 2025/06/22 23:43:11 by ahari            ###   ########.fr       */
+/*   Updated: 2025/06/29 23:06:12 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,6 @@ static int validate_syntax(char *str, t_shell *shell_ctx)
             quote = 0;
         i++;
     }
-
     if (quote)
     {
         write(2, "syntax error: unmatched quote\n", 31);
@@ -145,12 +144,15 @@ t_token	*string_tokens(char *str, t_shell *shell_ctx)
 	i = 0;
 	if (!validate_syntax(str, shell_ctx))
 		return (NULL);
+
 	while (str[i])
 	{
 		while (ft_isspace(str[i]))
 			i++;
 		if (!str[i])
 			break ;
+		if (!check_syntax_errors(str, i, shell_ctx))
+			return (NULL);
 		if (is_operator(str[i]))
 		{
 			if (!handle_operator(str, &i, &head))
@@ -164,3 +166,4 @@ t_token	*string_tokens(char *str, t_shell *shell_ctx)
 	}
 	return (head);
 }
+

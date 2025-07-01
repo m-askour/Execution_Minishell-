@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   storge_tokens.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
+/*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 17:49:49 by ahari             #+#    #+#             */
-/*   Updated: 2025/06/22 18:43:21 by ahari            ###   ########.fr       */
+/*   Updated: 2025/07/01 15:08:02 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,10 @@ static int parse_arguments(t_cmd *cmd, t_token **tokens)
     {
         if (current->type == TOKEN_WORD)
         {
-            cmd->cmd[arg_i++] = ft_strdup(current->value);
+            if (ft_strcmp(current->value, "\2") != 0)
+                cmd->cmd[arg_i++] = ft_strdup(current->value);
+            // else
+            //     printf("empty string\n");
             if (!cmd->cmd[arg_i - 1])
                 return 0;
         }

@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:02:07 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/27 20:35:56 by maskour          ###   ########.fr       */
+/*   Updated: 2025/07/01 19:12:43 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,33 +63,81 @@ static int cleanup_stdio(int original_stdin, int original_stdout)
     return 1;
 }
 // ----- Heredoc: prompts user, writes to temp file, updates file->name -----
-int function_herdoc(t_file *file) {
-    char *filename = get_rundem_name(file->name);
-    if (!filename) { perror("minishell: cannot create temporary file"); return 1; }
-    int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd == -1) { perror("minishell: open"); free(filename); return 1; }
-
-    char *line;
-    printf("delimiter is : %s\n", file->name);
-    while (1) {
-        line = readline("> ");
-        if (!line) 
-            break;
-        if (!ft_strcmp(line, file->name)) { free(line); break; }
-        write(fd, line, strlen(line));
-        write(fd, "\n", 1);
-        free(line);
+int function_herdoc(t_file *file) 
+{
+    pid_t pid;
+    int status;
+    
+    pid = fork();
+    if (pid == -1)
+    {
+        perror("minishell: fork (heredoc)");
+        return 1;
     }
-    close(fd);
-
-    free(file->name);
-    file->name = filename; // Now redirections will open the right file
-
-    signal(SIGINT, handler_sig);
-    signal(SIGQUIT, handler_sig);
-    return 0;
+    
+    if (pid == 0)
+    {
+        // Child process: set default signal handling
+        signal(SIGINT, SIG_DFL);
+        signal(SIGQUIT, SIG_DFL);
+        
+        char *filename = get_rundem_name(file->name);
+        if (!filename)
+        {
+            perror("minishell: cannot create temp file");
+            exit(1);
+        }
+        
+        int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd == -1)
+        {
+            perror("minishell: open");
+            free(filename);
+            exit(1);
+        }
+        
+        char *line;
+        while (1)
+        {
+            line = readline("> ");
+            
+            // Handle EOF (Ctrl+D)
+            if (!line)
+            {
+                break ;// Normal exit on EOF
+            }
+            
+            // Check for delimiter
+            if (!ft_strcmp(line, file->name))
+            {
+                free(line);
+                break;
+            }
+            
+            write(fd, line, strlen(line));
+            write(fd, "\n", 1);
+            free(line);
+        }
+        
+        close(fd);
+        
+        // Update the file structure with the temp filename
+        free(file->name);
+        file->name = filename;
+        exit(0); // Success
+    }
+    
+    // Parent: wait for heredoc process
+    waitpid(pid, &status, 0);
+    
+    if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+    {
+        write(1, "\n", 1); // newline after Ctrl+C
+        return 130; // Tell caller to cancel pipeline
+    }
+    
+    return WEXITSTATUS(status);
 }
-
 // ----- Redirection logic -----
 int redirections(t_cmd *cmd)
 {

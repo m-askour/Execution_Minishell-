@@ -6,23 +6,22 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/27 20:34:17 by maskour          ###   ########.fr       */
+/*   Updated: 2025/07/01 20:29:52 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../minishell.h"
-static void handl_quitsig(int signal)
-{
-    if (signal == SIGINT)
-	{
-    	 write(1,"\n",1);
-  		rl_on_new_line();
-  		rl_replace_line("", 0);
-  		rl_redisplay();
-		write (1,"Quit\n",5);
-	}
-}
+// static void handl_quitsig(int signal)
+// {
+//     if (signal == SIGINT)
+// 	{
+//     	 write(1,"\n",1);
+//   		rl_on_new_line();
+//   		rl_replace_line("", 0);
+//   		rl_redisplay();
+// 	}
+// }
 static void ignore_sigint(void)
 {
     signal(SIGINT, SIG_IGN);
@@ -31,7 +30,7 @@ static void ignore_sigint(void)
 static void restore_sigint(void)
 {
     // write(1,"\n",1);
-    signal(SIGINT, handl_quitsig);
+    signal(SIGINT, handler_sig);
 }
 // static void restore_sigint_1(void)
 // {
@@ -130,10 +129,18 @@ static void cmd_process(t_cmd *cmd, char **env)
         handle_cmd_errors(NULL);
         exit(1); // Exit with error
     }
+
     cmd_path = find_path(cmd->cmd[0], env);
     // printf("%s\n",cmd_path);
     if (!cmd_path)
     {
+       if (access(cmd->cmd[0], F_OK) == 0)
+        {
+            ft_putstr_fd_up("minishell: ", 2);
+            ft_putstr_fd_up(cmd->cmd[0], 2);
+            ft_putstr_fd_up(": Permission denied\n", 2);
+            exit(126); // Permission denied exit code
+        }
         ft_putstr_fd_up("minishell:", 2);
         ft_putstr_fd_up(cmd->cmd[0], 2);
         ft_putstr_fd_up(": command not found\n", 2);
@@ -141,7 +148,7 @@ static void cmd_process(t_cmd *cmd, char **env)
     }
     if (execve(cmd_path, cmd->cmd, env) == -1)
     {
-        if (!cmd->cmd[0] || cmd->cmd[0][0] == '\0') 
+        if (cmd->cmd[0][0] == '\0') 
         {
             ft_putstr_fd_up("minishell:", 2);
             ft_putstr_fd_up(" command not found\n", 2);
@@ -204,7 +211,9 @@ static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
         {
             shell_ctx->exit_status = 128 + WTERMSIG(status);
             if (WTERMSIG(status) == SIGINT)
-                write(1, "Quit\n", 5);  // Typically just newline for SIGINT
+            {
+                    write(1, "\n", 2);
+            }  // Typically just newline for SIGINT
             else if (WTERMSIG(status) == SIGQUIT)
                 write(1, "Quit\n", 5);
         }
@@ -233,30 +242,77 @@ static int is_spaces(char *s)
     }
     return (1);
 }
+static void cleanup_heredoc_files(t_cmd **cmds, int cmd_count)
+{
+    for (int j = 0; j < cmd_count; j++)
+    {
+        t_cmd *cmd = cmds[j];
+        for (int k = 0; k < cmd->file_count; k++)
+        {
+            if (cmd->files[k].type == TOKEN_HEREDOC)
+                unlink(cmd->files[k].name);
+        }
+    }
+}
+static int handle_redirections(t_cmd *cmd)
+{
+    for (int i = 0; i < cmd->file_count; i++)
+    {
+        t_file *file = &cmd->files[i];
+        
+        if (file->type == TOKEN_HEREDOC)
+        {
+            // Open the temp file created during preprocessing
+            int fd = open(file->name, O_RDONLY);
+            if (fd == -1)
+            {
+                perror("minishell: heredoc file");
+                return 1;
+            }
+            if (dup2(fd, STDIN_FILENO) == -1)
+            {
+                perror("minishell: dup2");
+                close(fd);
+                return 1;
+            }
+            close(fd);
+        }
+        // Handle other redirection types here...
+    }
+    return 0;
+}
+
 static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env_list, t_shell *shell_ctx)
 {
     if (!cmds || cmd_count <= 0)
         return;
-
+        
     // 1. === PRE-PROCESS: Collect heredoc input for all commands ===
     // (DO THIS BEFORE ANY FORKING!)
-    int j;
-    int k;
-    j = -1;
-    while(++j < cmd_count)
+    for (int h = 0; h < cmd_count; h++)
     {
-        t_cmd *cmd = cmds[j];
-        k = -1;
-        while (++k < cmd->file_count)
+        for (int f = 0; f < cmds[h]->file_count; f++)
         {
-            if (cmd->files[k].type == TOKEN_HEREDOC) // or whatever your HEREDOC type is
+            if (cmds[h]->files[f].type == TOKEN_HEREDOC)
             {
-                if (function_herdoc(&cmd->files[k]) != 0)
-                    return; // heredoc failed, abort pipeline
+                int hd_status = function_herdoc(&cmds[h]->files[f]);
+                if (hd_status == 130)
+                {
+                    shell_ctx->exit_status = 1;
+                    // Clean up any temp files created so far
+                    cleanup_heredoc_files(cmds, cmd_count);
+                    return; // Abort pipeline on Ctrl+C
+                }
+                else if (hd_status != 0)
+                {
+                    shell_ctx->exit_status = 1;
+                    cleanup_heredoc_files(cmds, cmd_count);
+                    return; // Other heredoc failure
+                }
             }
         }
     }
-
+    
     int pipes[2];
     pid_t pid;
     int prev_pipe = -1;
@@ -271,6 +327,7 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
         if (i < cmd_count - 1 && pipe(pipes) == -1)
         {
             perror("minishell: pipe");
+            cleanup_heredoc_files(cmds, cmd_count);
             exit(1);
         }
 
@@ -280,6 +337,7 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
             // Child process
             signal(SIGINT, SIG_DFL);
             signal(SIGQUIT, SIG_DFL);
+            
             // If not the first command, set up input from previous pipe
             if (i > 0)
             {
@@ -303,12 +361,10 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
                 close(pipes[1]);
             }
 
-            // Close unused pipe ends
-            if (i > 0 && prev_pipe != -1)
-                close(prev_pipe);
-            if (i < cmd_count - 1)
-                close(pipes[0]);
-           
+            // Handle file redirections (including heredoc)
+            if (handle_redirections(cmds[i]) != 0)
+                exit(1);
+        
             // Validate command
             if (!cmds[i]->cmd || !cmds[i]->cmd[0] || is_spaces(cmds[i]->cmd[0]))
             {
@@ -319,20 +375,28 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
             // Handle builtins in child process (pipeline)
             if (is_builtin(cmds[i]->cmd[0]))
             {
-                env_list = execut_bultin(&cmds[i], env_list,shell_ctx, 0);
+                env_list = execut_bultin(&cmds[i], env_list, shell_ctx, 0);
                 free_env(env);
-                exit(shell_ctx->exit_status); // Don't forget to exit!
+                exit(shell_ctx->exit_status);
             }
 
             // External command
             char *path = find_path(cmds[i]->cmd[0], env);
             if (!path)
             {
+                if (access(cmds[i]->cmd[0], F_OK) == 0)
+                {
+                    ft_putstr_fd_up("minishell: ", 2);
+                    ft_putstr_fd_up(cmds[i]->cmd[0], 2);
+                    ft_putstr_fd_up(": Permission denied\n", 2);
+                    exit(126);
+                }
                 ft_putstr_fd_up("minishell: ", 2);
                 ft_putstr_fd_up(cmds[i]->cmd[0], 2);
-                ft_putstr_fd_up(": command not found\n", 2);
+                ft_putstr_fd_up(": 2command not found\n", 2);
                 exit(127);
             }
+            
             if (execve(path, cmds[i]->cmd, env) == -1)
             {
                 handle_cmd_errors(path);
@@ -346,7 +410,7 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
         {
             signal(SIGQUIT, SIG_IGN);
             if (i > 0 && prev_pipe != -1)
-            close(prev_pipe);
+                close(prev_pipe);
             if (i < cmd_count - 1)
             {
                 close(pipes[1]);
@@ -357,15 +421,19 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
         else
         {
             perror("minishell: fork");
+            cleanup_heredoc_files(cmds, cmd_count);
             exit(1);
         }
         i++;
     }
+    
     if (prev_pipe != -1)
         close(prev_pipe);
+        
     int wstatus = 0;
     pid_t wpid;
     int saw_sigint = 0;
+    
     while ((wpid = wait(&wstatus)) > 0)
     {
         if (WIFSIGNALED(wstatus))
@@ -375,7 +443,6 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
                 saw_sigint = 1;
             if (sig == SIGQUIT)
                 write(1, "Quit: 3\n", 8);
-            shell_ctx->exit_status = 128 + WTERMSIG(wstatus);
         }
 
         if (wpid == last_pid)
@@ -390,53 +457,11 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
     }
 
     if (saw_sigint)
-        write(1, "Quit\n", 5); 
-    // while ((wpid = wait(&wstatus)) > 0) {
-    //     if (wpid == last_pid) {
-    //         if (WIFEXITED(wstatus)) {
-    //             shell_ctx->exit_status = WEXITSTATUS(wstatus);
-    //         }
-    //         else if (WIFSIGNALED(wstatus)) {
-    //             shell_ctx->exit_status = 128 + WTERMSIG(wstatus);
-                
-    //             // Custom signal message handling
-    //             if (WTERMSIG(wstatus) == SIGQUIT) {
-    //                 write(1, "Quit\n", 5);
-    //             }
-    //             else if (WTERMSIG(wstatus) == SIGINT) {
-    //                 // Only print newline for certain commands
-    //                 int should_print = 0;
-    //                 for (int x = 0; x < cmd_count; x++) {
-    //                     if (cmds[x]->cmd && cmds[x]->cmd[0] && 
-    //                         (strcmp(cmds[x]->cmd[0], "cat") == 0)) {
-    //                         should_print = 1;
-    //                         break;
-    //                     }
-    //                 }
-    //                 if (should_print) {
-    //                     write(1, "Quit\n", 5);
-    //                 }
-    //             }
-    //         }
-    //         else {
-    //             shell_ctx->exit_status = 1;
-    //         }
-            
-    //     }
-    // }
-    restore_sigint();
+        write(1, "\n", 1);
 
-    j = -1;
-    while (++j < cmd_count)
-    {
-        t_cmd *cmd = cmds[j];
-        k = -1;
-        while  (++k < cmd->file_count)
-        {
-            if (cmd->files[k].type == TOKEN_HEREDOC)
-                unlink(cmd->files[k].name);
-        }
-    }
+    // Clean up heredoc temp files
+    cleanup_heredoc_files(cmds, cmd_count);
+    restore_sigint();
 }
 
 int exicut(t_cmd **cmd, t_env **env_list, t_shell *shell_ctx)
@@ -463,7 +488,7 @@ int exicut(t_cmd **cmd, t_env **env_list, t_shell *shell_ctx)
             free_env(env);
             return (0);
         }
-        execute_single_command(cmd, env, shell_ctx);
+        execute_single_command(cmd, env,shell_ctx);
     }
     else
     {// Convert linked list to array

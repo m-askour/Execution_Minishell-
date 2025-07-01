@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/25 23:16:00 by maskour          ###   ########.fr       */
+/*   Updated: 2025/06/28 19:36:34 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,12 @@ void ff()
 {
     system("leaks minishell");
 }
+static void sign(t_shell *shell)
+{
+    signal(SIGINT, handler_sig);
+    shell->exit_status = 1;
+    
+}
 int main(int ac,char **av,char **env)
 {
     (void)ac;
@@ -41,13 +47,13 @@ int main(int ac,char **av,char **env)
      t_cmd       *commands;
     t_env *env_list;
     env_list = file_inv(env);
-    signal(SIGINT, handler_sig); 
-    signal(SIGQUIT, handler_sig); 
     t_shell *shell_ctx;
     shell_ctx = malloc (sizeof(t_shell));
     if(!shell_ctx)
         exit(1);
     shell_ctx->exit_status = 0; 
+    sign(shell_ctx);
+    signal(SIGQUIT, handler_sig); 
     while (1)
     {
         // atexit(ff);
