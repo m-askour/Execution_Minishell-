@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 19:01:03 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/24 20:53:10 by maskour          ###   ########.fr       */
+/*   Updated: 2025/06/25 23:19:32 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ void exit_number_error(char *arg)
 	ft_putstr_fd_up("minishell:",2);
 	ft_putstr_fd_up(arg, 2);
 	ft_putstr_fd_up(": numeric argument required\n",2);
-	exit(2);
+	exit(127);
 }
 
-void ft_exit(t_cmd **cmd, t_shell *shell)
+void ft_exit(t_cmd **cmd, t_shell *shell, int j)
 {
 	int		status;
 	int		i;
@@ -29,7 +29,8 @@ void ft_exit(t_cmd **cmd, t_shell *shell)
 	status = shell->exit_status;
 	i = 0;
 	current_cmd = *cmd;
-	printf("exit\n");
+	if (j == 1)
+		printf("exit\n");
 	if (!current_cmd->cmd[1]){ exit(shell->exit_status);}
 	if (current_cmd->cmd[1][i] == '+' || current_cmd->cmd[1][i] == '-')
 		i++;

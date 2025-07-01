@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 15:08:30 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/24 14:18:13 by maskour          ###   ########.fr       */
+/*   Updated: 2025/06/25 23:16:00 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,20 @@
 
 #include "minishell.h"
 
+void free_char_array(char **array)
+{
+    int i;
+
+    if (!array)
+        return;
+    i = 0;
+    while (array[i])
+    {
+        free(array[i]);
+        i++;
+    }
+    free(array);
+}
 void ff()
 {
     system("leaks minishell");
@@ -24,7 +38,7 @@ int main(int ac,char **av,char **env)
     (void)av;
     char        *input;
     t_token     *tokens;
-    t_cmd       *commands;
+     t_cmd       *commands;
     t_env *env_list;
     env_list = file_inv(env);
     signal(SIGINT, handler_sig); 
@@ -39,11 +53,13 @@ int main(int ac,char **av,char **env)
         // atexit(ff);
         input = readline("minishell$ ");
         if (!input)
-        {            
+        {     
             write(1 ,"exit\n", 5);
-            break ;
+            free_env_list(env_list);
+            // free(shell_ctx);
+            exit(shell_ctx->exit_status) ;
         }
-        if (*input)
+        if (input[0])
             add_history(input);
         char **env_table = convert(env_list);
         tokens = check_quoted(input, shell_ctx, env_table);
@@ -54,15 +70,9 @@ int main(int ac,char **av,char **env)
             continue ;
         }
         commands = parse_commands(tokens , shell_ctx);
+        print_command_with_files(commands);
         if (!commands)
         {
-            free_tokens(tokens, input);
-            continue ;
-        }
-        commands = expand_cmd_list(commands, shell_ctx, env_table);
-        if (!commands)
-        {
-            free_cmd_list(commands);
             free_tokens(tokens, input);
             continue ;
         }
@@ -74,6 +84,7 @@ int main(int ac,char **av,char **env)
     }
     free_env_list(env_list);
     free(shell_ctx);
+    write(1 ,"exit\n", 5);
     return (0);
 }
 

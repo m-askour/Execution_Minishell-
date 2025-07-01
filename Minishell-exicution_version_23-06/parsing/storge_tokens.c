@@ -6,7 +6,7 @@
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 17:49:49 by ahari             #+#    #+#             */
-/*   Updated: 2025/06/20 22:04:33 by ahari            ###   ########.fr       */
+/*   Updated: 2025/06/22 18:43:21 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ t_cmd *parse_commands(t_token *tokens, t_shell *shell_ctx)
     {
         new_cmd = parse_single_command(&tokens);
         if (!new_cmd)
-            return (free_cmd_list(cmd_head),shell_ctx->exit_status = 2, NULL);
+            return (free_cmd_list(cmd_head),shell_ctx->exit_status = 258, NULL);
         if (!cmd_head)
             cmd_head = new_cmd;
         else
@@ -157,7 +157,7 @@ t_cmd *parse_commands(t_token *tokens, t_shell *shell_ctx)
             if (!tokens->next)
             {
                 ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2, 0);
-                shell_ctx->exit_status = 2;
+                shell_ctx->exit_status = 258;
                 return (free_cmd_list(cmd_head), NULL);
             }
             tokens = tokens->next;

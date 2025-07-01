@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 04:59:25 by ahari             #+#    #+#             */
-/*   Updated: 2025/06/24 19:01:24 by maskour          ###   ########.fr       */
+/*   Updated: 2025/06/27 12:06:13 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,10 @@ typedef enum e_token_type
 
 typedef struct s_token
 {
-	char            *value;// the actual string (e.g. "ls", ">", "file.txt")
-	t_token_type    type;// type of token
-	char            quote_type;// '\"', '\'', or 0 (no quotes)
-	struct s_token  *next; // pointer to next token
+	char            *value;         // the actual string (e.g. "ls", ">", "file.txt")
+	t_token_type    type;           // type of token
+	char            quote_type;  // '\"', '\'', or 0 (no quotes)
+	struct s_token  *next;          // pointer to next token
 }   t_token;
 
 typedef struct s_file
@@ -82,6 +82,8 @@ typedef struct s_shell
     int exit_status;
 } t_shell;
 
+
+
 /*---------------function for free--------------------*/
 void			free_tokens(t_token *tokens, char *input);
 void			free_char_array(char **array);
@@ -89,13 +91,6 @@ void			free_cmd(t_cmd *cmd);
 void			free_cmd_array(char **cmd);
 void			free_files(t_file *files, int file_count);
 void			free_cmd_list(t_cmd *cmd_list);
-
-void			free_env_list(t_env *env_list);
-void 			free_env(char **env);
-void			free_split(char **str);
-void	remove_env_key (t_env **env, const char *key);
-
-
 void			print_error(t_token *head, char *val, t_shell *shell_ctx);
 /*-----------------Tokenizer --------------------------*/
 t_token			*string_tokens(char *str, t_shell *shell_ctx);
@@ -145,6 +140,11 @@ t_token			*new_token(char *val, t_token_type type);
 //for testing
 char **process_quoted_value(char *val, t_token *head, t_shell *shell_ctx);
 
+
+
+
+
+
 /*---------------exicution_util-----------------------*/
 // char	*ft_itoa(int n);
 char	**ft_split_up(char const *s, char c);
@@ -169,19 +169,14 @@ int exicut(t_cmd **cmd, t_env **env_list, t_shell *shell_ctx);
 // int execute_single_command(t_cmd **cmd, char **envp);
 int redirections(t_cmd *cmd);
 char	*find_path(char *cmd, char **env);
-void execute_pipeline(t_cmd **cmds, int cmd_count, char **env,t_shell *shell_ctx);
-void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx);
-/*---------------rederections-----------------------*/
-
-int function_herdoc(t_file *file);
 
 /*---------------------builtins-----------------------*/
-t_env *execut_bultin(t_cmd **cmd, t_env *env_list, t_shell *shell);
+t_env *execut_bultin(t_cmd **cmd, t_env *env_list, t_shell *shell, int i);
 int is_builtin(char *command);
 t_env *ft_cd(t_cmd **cmd, t_env *data_env, t_shell *shell_ctx);
 void ft_echo(t_cmd **cmd, t_shell *shell_ctx);
 void ft_env(t_env *env_list, t_shell *shell_ctx);
-void ft_exit(t_cmd **cmd, t_shell *shell);
+void ft_exit(t_cmd **cmd, t_shell *shell, int j);
 void ft_pwd(t_shell *shell_ctx, t_env *env_list);
 t_env *ft_unset(t_cmd **cmd, t_env *env, t_shell *shell_ctx);
 void ft_export(t_cmd **cmd, t_env **envp, t_shell *shell);
@@ -191,12 +186,13 @@ char *search_env(t_env *env, const char *key);
 t_env *new_env(char *data_env);
 void add_env(t_env **env_list, t_env *new_node);
 t_env *file_inv(char **env);
+void free_env_list(t_env *env_list);
 
 /*---------------signals-----------------------*/
 void handler_sig(int signal);
-void restore_sigint(void);
 
-/*---------------error-----------------------*/
-void handle_cmd_errors(char *cmd_path, char *message);
 
+
+
+int function_herdoc(t_file *file);
 #endif

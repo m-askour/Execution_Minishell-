@@ -6,14 +6,13 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:02:07 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/24 19:18:45 by maskour          ###   ########.fr       */
+/*   Updated: 2025/06/27 20:35:56 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../minishell.h"
-static int open_file(char *file, int mode)
-{
+static int open_file(char *file, int mode) {
     int fd = 0;
     if (mode == 0)
         fd = open(file, O_RDONLY);
@@ -23,7 +22,39 @@ static int open_file(char *file, int mode)
         fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
     return (fd);
 }
-int cleanup_stdio(int original_stdin, int original_stdout)
+
+// ----- Unique temp filename generator -----
+static char *get_rundem_name(char *file_name) {
+    char *filename;
+    int fd;
+    char *count_str;
+    char *tmp;
+
+    filename = ft_strdup(file_name);
+    if (!filename) return NULL;
+    fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600);
+    if (fd != -1) { close(fd); return filename; }
+    free(filename);
+
+    int count = 0;
+    while (count < 1000) {
+        count_str = ft_itoa(count);
+        if (!count_str) return NULL;
+        filename = ft_strjoin(file_name, "_");
+        if (!filename) { free(count_str); return NULL; }
+        tmp = ft_strjoin(filename, count_str);
+        free(filename);
+        free(count_str);
+        if (!tmp) return NULL;
+        filename = tmp;
+        fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600);
+        if (fd != -1) { close(fd); return filename; }
+        free(filename);
+        count++;
+    }
+    return NULL;
+}
+static int cleanup_stdio(int original_stdin, int original_stdout)
 {
     dup2(original_stdin, STDIN_FILENO);
     dup2(original_stdout, STDOUT_FILENO);
@@ -31,7 +62,35 @@ int cleanup_stdio(int original_stdin, int original_stdout)
     close(original_stdout);
     return 1;
 }
+// ----- Heredoc: prompts user, writes to temp file, updates file->name -----
+int function_herdoc(t_file *file) {
+    char *filename = get_rundem_name(file->name);
+    if (!filename) { perror("minishell: cannot create temporary file"); return 1; }
+    int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd == -1) { perror("minishell: open"); free(filename); return 1; }
 
+    char *line;
+    printf("delimiter is : %s\n", file->name);
+    while (1) {
+        line = readline("> ");
+        if (!line) 
+            break;
+        if (!ft_strcmp(line, file->name)) { free(line); break; }
+        write(fd, line, strlen(line));
+        write(fd, "\n", 1);
+        free(line);
+    }
+    close(fd);
+
+    free(file->name);
+    file->name = filename; // Now redirections will open the right file
+
+    signal(SIGINT, handler_sig);
+    signal(SIGQUIT, handler_sig);
+    return 0;
+}
+
+// ----- Redirection logic -----
 int redirections(t_cmd *cmd)
 {
     if (!cmd || cmd->file_count <= 0)
