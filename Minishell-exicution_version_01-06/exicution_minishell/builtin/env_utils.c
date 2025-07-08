@@ -6,12 +6,33 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:39:24 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/20 20:28:44 by maskour          ###   ########.fr       */
+/*   Updated: 2025/06/25 20:18:26 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
 
+static void remove_env_key(t_env **env, const char *key) {
+    t_env *current = *env, *prev = NULL;
+    int key_len = strlen(key);
+
+    while (current) {
+        if (!strncmp(current->data_env, key, key_len) &&
+            (current->data_env[key_len] == '=' || current->data_env[key_len] == '\0')) 
+        {
+            if (prev)
+                prev->next = current->next;
+            else
+                *env = current->next;
+
+            free(current->data_env);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
 t_env	*new_env(char *data_env)
 {
 	t_env	*node;
@@ -144,11 +165,6 @@ t_env	*file_inv(char **env)
 	while(env[i])
 	{
 		new = new_env(env[i]);
-		if (!ft_strncmp(env[i], "OLDPWD=", 7))
-		{
-			i++;
-			continue;
-		}
 		if (!new)
 		{
 			free_env_list(env_list);
@@ -157,5 +173,7 @@ t_env	*file_inv(char **env)
 		add_env(&env_list,new);
 		i++;
 	}
+	remove_env_key(&env_list, "OLDPWD");
+
 	return (env_list);
 }

@@ -1,0 +1,159 @@
+minishell:kkskdskds: command not found
+minishell$           
+minishell$ echo $?
+258
+minishell$ 
+
+
+minishell$ export z=" "
+minishell$ $z
+minishell: : command not found
+
+
+executio
+minishell$ exit | exit
+minishell: exit: command not found
+minishell: exit: command not found
+
+
+minishell$ << a << b << c cat
+delimiter is : c
+> asjjsajjsa
+> as;as;as;
+> a
+> aaaaaaaaaaa
+> bbbbbbbbbb
+> b
+> ayo
+> moha
+> c
+asjjsajjsa
+as;as;as;
+a
+aaaaaaaaaaa
+bbbbbbbbbb
+b
+ayo
+moha
+
+----------------------------------------------
+bash-3.2$ export HOME+=.
+bash-3.2$ cd
+bash: cd: /mnt/homes/maskour.: No such file or directory
+
+----------------------------------------------
+bash-3.2$ export HOME
+bash-3.2$ CD
+/usr/bin/CD: line 4: cd: /mnt/homes/maskour.: No such file or directory
+bash-3.2$ cd
+bash: cd: /mnt/homes/maskour.: No such file or directory
+----------------------------------------------
+
+bash-3.2$ ./par
+bash: ./par: No such file or directory
+----------------------------------------------
+bash-3.2$ ./parsing/
+bash: ./parsing/: is a directory
+------------------------
+minishell$ << a << b << c cat | << 1 << 2 << 3 cat
+delimiter is : 3
+> delimiter is : c
+> 2004h> 
+
+
+
+exit status here is 1 when use ctl + c
+<< 1 << 2 << 3 << 4 << 5 << 6 << 7 
+delimiter is : 7
+minishell$ echo $?
+130
+
+
+whene use ctl + d you need to exit in herdoc wa7d bwa7d machi d9a w7da o exit status hna hya 0 machi 1
+<< 1 << 2 << 3 << 4 << 5 << 6 << 7 
+delimiter is : 7
+> 
+minishell$ echo $?
+1
+
+
+minishell$ export x="ls -la"
+minishell$ $x
+minishell:ls -la: command not found
+minishell$ "$x"
+minishell:ls -la: command not found
+minishell$ '$x'
+minishell:ls -la: command not found
+minishell$ 
+
+
+
+=================================================================
+==9415==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 192 byte(s) in 9 object(s) allocated from:
+    #0 0x7fcc4ba32887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
+    #1 0x5624255de045 in parse_single_command parsing/storge_tokens.c:134
+    #2 0x5624255de425 in parse_commands parsing/storge_tokens.c:159
+    #3 0x5624255e37b4 in main /mnt/c/Users/PC/mini2/Minishell-exicution_version_01-06/main.c:70
+    #4 0x7fcc4b72ad8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+Direct leak of 28 byte(s) in 4 object(s) allocated from:
+    #0 0x7fcc4ba32887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
+    #1 0x5624255e2f2b in ft_strremovechar parsing/export.c:71
+    #2 0x5624255e315b in is_valid_export_token parsing/export.c:93
+    #3 0x5624255e338e in is_export_assignment parsing/export.c:119
+    #4 0x5624255e28a3 in process_token parsing/parsing_v2.c:258
+    #5 0x5624255dd0da in check_quoted parsing/parsing.c:323
+    #6 0x5624255e3767 in main /mnt/c/Users/PC/mini2/Minishell-exicution_version_01-06/main.c:63
+    #7 0x7fcc4b72ad8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+Direct leak of 28 byte(s) in 4 object(s) allocated from:
+    #0 0x7fcc4ba32887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
+    #1 0x5624255e2f2b in ft_strremovechar parsing/export.c:71
+    #2 0x5624255e315b in is_valid_export_token parsing/export.c:93
+    #3 0x5624255e338e in is_export_assignment parsing/export.c:119
+    #4 0x5624255e28dd in process_token parsing/parsing_v2.c:259
+    #5 0x5624255dd0da in check_quoted parsing/parsing.c:323
+    #6 0x5624255e3767 in main /mnt/c/Users/PC/mini2/Minishell-exicution_version_01-06/main.c:63
+    #7 0x7fcc4b72ad8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+Direct leak of 14 byte(s) in 2 object(s) allocated from:
+    #0 0x7fcc4ba32887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
+    #1 0x5624255d9dcd in ft_strdup parsing/tools/string_tools.c:61
+    #2 0x5624255e00c6 in get_env parsing/expand.c:28
+    #3 0x5624255e079e in handle_env_var parsing/expand.c:135
+    #4 0x5624255e0db6 in process_env_variable parsing/expand.c:207
+    #5 0x5624255e0f7c in process_variables parsing/expand.c:248
+    #6 0x5624255e10bc in found_env parsing/expand.c:275
+    #7 0x5624255dcec7 in process_env_expansion parsing/parsing.c:301
+    #8 0x5624255e1b4e in process_token_loop parsing/parsing_v2.c:125
+    #9 0x5624255e2a1d in process_token parsing/parsing_v2.c:269
+    #10 0x5624255dd0da in check_quoted parsing/parsing.c:323
+    #11 0x5624255e3767 in main /mnt/c/Users/PC/mini2/Minishell-exicution_version_01-06/main.c:63
+    #12 0x7fcc4b72ad8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+Direct leak of 14 byte(s) in 2 object(s) allocated from:
+    #0 0x7fcc4ba32887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
+    #1 0x5624255d9dcd in ft_strdup parsing/tools/string_tools.c:61
+    #2 0x5624255e00c6 in get_env parsing/expand.c:28
+    #3 0x5624255e079e in handle_env_var parsing/expand.c:135
+    #4 0x5624255e0db6 in process_env_variable parsing/expand.c:207
+    #5 0x5624255e0f7c in process_variables parsing/expand.c:248
+    #6 0x5624255e10bc in found_env parsing/expand.c:275
+    #7 0x5624255e1998 in process_token_loop parsing/parsing_v2.c:114
+    #8 0x5624255e2a1d in process_token parsing/parsing_v2.c:269
+    #9 0x5624255dd0da in check_quoted parsing/parsing.c:323
+    #10 0x5624255e3767 in main /mnt/c/Users/PC/mini2/Minishell-exicution_version_01-06/main.c:63
+    #11 0x7fcc4b72ad8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+Direct leak of 6 byte(s) in 1 object(s) allocated from:
+    #0 0x7fcc4ba32887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
+    #1 0x5624255e2049 in ft_strjoin3 parsing/parsing_v2.c:157
+    #2 0x5624255e2264 in export_one_case parsing/parsing_v2.c:195
+    #3 0x5624255e2918 in process_token parsing/parsing_v2.c:261
+    #4 0x5624255dd0da in check_quoted parsing/parsing.c:323
+    #5 0x5624255e3767 in main /mnt/c/Users/PC/mini2/Minishell-exicution_version_01-06/main.c:63
+    #6 0x7fcc4b72ad8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+SUMMARY: AddressSanitizer: 282 byte(s) leaked in 22 allocation(s).

@@ -6,7 +6,7 @@
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 20:55:41 by ahari             #+#    #+#             */
-/*   Updated: 2025/04/21 20:59:25 by ahari            ###   ########.fr       */
+/*   Updated: 2025/07/03 17:34:32 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ void print_command_with_files(t_cmd *cmd)
         {
             printf("  %s: ", redir_type_to_string(cmd->files[i].type));
             printf("%s\n", cmd->files[i].name);
+            printf("expand 1 if not  0 : %d\n",cmd->files[i].check_expand);
         }
     }
     else
@@ -97,6 +98,7 @@ void print_tokens(t_token *head)
     {
         printf("Token: %s  Type: ", current->value);
         print_token_type(current->type);
+        printf("  Was quoted: %d", current->was_quoted);
         printf("\n");
         current = current->next;
     }

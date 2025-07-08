@@ -1,25 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_env.c                                           :+:      :+:    :+:   */
+/*   error_file.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/26 16:51:17 by maskour           #+#    #+#             */
-/*   Updated: 2025/07/04 20:07:51 by maskour          ###   ########.fr       */
+/*   Created: 2025/06/24 14:23:28 by maskour           #+#    #+#             */
+/*   Updated: 2025/06/24 15:50:27 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../minishell.h"
+#include "../minishell.h"
 
-void ft_env(t_env *env_list, t_shell *shell_ctx)
+void handle_cmd_errors(char *cmd_path, char *message)
 {
-    t_env *env = env_list;
-    while (env != NULL)
-    {
-        if (ft_strchr(env->data_env, '='))
-            printf("%s\n",env->data_env);
-        env = env->next;
-    }
-    shell_ctx->exit_status = 0;
+	if(cmd_path)
+	{
+		ft_putstr_fd_up("minishell:", 2);
+		ft_putstr_fd_up(cmd_path, 2);
+		ft_putstr_fd_up(message, 2);
+	}
 }

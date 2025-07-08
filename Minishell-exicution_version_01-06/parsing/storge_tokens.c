@@ -6,7 +6,7 @@
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 17:49:49 by ahari             #+#    #+#             */
-/*   Updated: 2025/06/20 22:04:33 by ahari            ###   ########.fr       */
+/*   Updated: 2025/07/07 21:44:17 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,18 +24,33 @@ static int count_commands(t_token *tokens)
     return count;
 }
 
-static int parse_arguments(t_cmd *cmd, t_token **tokens)
+static int parse_arguments(t_cmd *cmd, t_token *tokens)
 {
     int arg_i = 0;
-    t_token *current = *tokens;
+    t_token *current = tokens;
 
+    int valid_args = 0;
+    t_token *count_ptr = current;
+    while (count_ptr && count_ptr->type != TOKEN_PIPE)
+    {
+        if (count_ptr->type == TOKEN_WORD && ft_strcmp(count_ptr->value, "\2") != 0)
+            valid_args++;
+        count_ptr = count_ptr->next;
+    }
+    if (!cmd->cmd)
+        return 0;
     while (current && current->type != TOKEN_PIPE)
     {
-        if (current->type == TOKEN_WORD)
+        if (current->type == TOKEN_WORD && ft_strcmp(current->value, "\2") != 0)
         {
             cmd->cmd[arg_i++] = ft_strdup(current->value);
             if (!cmd->cmd[arg_i - 1])
+            {
+                while (--arg_i >= 0)
+                    free(cmd->cmd[arg_i]);
                 return 0;
+            }
+
         }
         else if (ft_isredirect(current->type))
         {
@@ -54,7 +69,7 @@ static int parse_arguments(t_cmd *cmd, t_token **tokens)
         current = current->next;
     }
     cmd->cmd[arg_i] = NULL;
-    *tokens = current;
+    tokens = current;
     return 1;
 }
 
@@ -85,8 +100,9 @@ static int parse_redirections(t_cmd *cmd, t_token **tokens)
             if(!file->name)
                 return (free(file), 0);
             file->type = current->type;
-            if (!file->name)
-                return (free(file), 0);
+            file->check_expand = current->next->was_quoted;
+            // if (!file->name)
+            //     return (free(file), 0);
             cmd->files[cmd->file_count++] = *file;
             free(file);
             current = current->next;
@@ -126,7 +142,8 @@ static t_cmd *parse_single_command(t_token **tokens)
     cmd->files = malloc(sizeof(t_file) * (redir_count + 1));
     if (!cmd->files)
         return (free(cmd->cmd), free(cmd), NULL);
-    if (!parse_arguments(cmd, tokens) || !parse_redirections(cmd, &start))
+
+    if (!parse_arguments(cmd, *tokens) || !parse_redirections(cmd, &start))
         return (free(cmd),NULL);
     while (*tokens && (*tokens)->type != TOKEN_PIPE)
         *tokens = (*tokens)->next;
@@ -145,8 +162,9 @@ t_cmd *parse_commands(t_token *tokens, t_shell *shell_ctx)
     while (i < cmd_count)
     {
         new_cmd = parse_single_command(&tokens);
+       
         if (!new_cmd)
-            return (free_cmd_list(cmd_head),shell_ctx->exit_status = 2, NULL);
+            return (free_cmd_list(cmd_head),shell_ctx->exit_status = 258, NULL);
         if (!cmd_head)
             cmd_head = new_cmd;
         else
@@ -157,7 +175,7 @@ t_cmd *parse_commands(t_token *tokens, t_shell *shell_ctx)
             if (!tokens->next)
             {
                 ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2, 0);
-                shell_ctx->exit_status = 2;
+                shell_ctx->exit_status = 258;
                 return (free_cmd_list(cmd_head), NULL);
             }
             tokens = tokens->next;

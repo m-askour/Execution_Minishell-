@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 16:51:36 by maskour           #+#    #+#             */
-/*   Updated: 2025/06/20 21:59:36 by maskour          ###   ########.fr       */
+/*   Updated: 2025/07/04 20:08:58 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,7 @@ t_env *ft_unset(t_cmd **cmd, t_env *env, t_shell *shell_ctx)
         prev = NULL;
         while (current != NULL)
         {
-            if (!ft_strncmp(current->data_env, current_cmd->cmd[i], len) &&
-                current->data_env[len] == '=')
+            if (!ft_strncmp(current->data_env, current_cmd->cmd[i], len))
             {
                 to_free = current;
                 if (prev == NULL)

@@ -6,7 +6,7 @@
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 03:16:06 by ahari             #+#    #+#             */
-/*   Updated: 2025/06/20 22:12:16 by ahari            ###   ########.fr       */
+/*   Updated: 2025/06/22 20:43:41 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,23 +44,23 @@ int ft_strcmp(const char *s1, const char *s2)
 
 int is_operator(const char s)
 {
-    return (s == '|' || s == '<' || s == '>');//dealat s == '\\'
+    return (s == '|' || s == '<' || s == '>');
 }
 
 t_token_type get_token_type(const char *s)
 {
     if (ft_strcmp(s, "|") == 0)
-        return TOKEN_PIPE;
+        return (TOKEN_PIPE);
     else if (ft_strcmp(s, "<") == 0)
-        return TOKEN_REDIRECT_IN;
+        return (TOKEN_REDIRECT_IN);
     else if (ft_strcmp(s, ">") == 0)
-        return TOKEN_REDIRECT_OUT;
+        return (TOKEN_REDIRECT_OUT);
     else if (ft_strcmp(s, "<<") == 0)
-        return TOKEN_HEREDOC;
+        return (TOKEN_HEREDOC);
     else if (ft_strcmp(s, ">>") == 0)
-        return TOKEN_APPEND;
+        return (TOKEN_APPEND);
     else
-        return TOKEN_WORD;
+        return (TOKEN_WORD);
 }
 
 void add_token(t_token **head, t_token *new)

@@ -6,7 +6,7 @@
 /*   By: ahari <ahari@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 18:27:19 by ahari             #+#    #+#             */
-/*   Updated: 2025/04/22 18:49:27 by ahari            ###   ########.fr       */
+/*   Updated: 2025/07/07 21:25:29 by ahari            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ void free_tokens(t_token *tokens, char *input)
         free(temp);
         temp = NULL;
     }
+    
     if (input)
         free(input);
     input = NULL;

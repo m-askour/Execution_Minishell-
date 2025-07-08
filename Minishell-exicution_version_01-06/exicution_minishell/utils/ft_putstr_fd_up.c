@@ -1,25 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_env.c                                           :+:      :+:    :+:   */
+/*   ft_putstr_fd_up.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/26 16:51:17 by maskour           #+#    #+#             */
-/*   Updated: 2025/07/04 20:07:51 by maskour          ###   ########.fr       */
+/*   Created: 2025/06/24 15:20:21 by maskour           #+#    #+#             */
+/*   Updated: 2025/06/24 15:49:51 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
 
-void ft_env(t_env *env_list, t_shell *shell_ctx)
+void	ft_putstr_fd_up(char *s, int fd)
 {
-    t_env *env = env_list;
-    while (env != NULL)
-    {
-        if (ft_strchr(env->data_env, '='))
-            printf("%s\n",env->data_env);
-        env = env->next;
-    }
-    shell_ctx->exit_status = 0;
+	size_t	len;
+
+	if (!s || fd < 0)
+		return ;
+	len = 0;
+	while (s[len])
+		len++;
+	write(fd, s, len);
 }
