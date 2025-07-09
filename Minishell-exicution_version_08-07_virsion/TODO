@@ -1,0 +1,92 @@
+minishell:kkskdskds: command not found
+minishell$           
+minishell$ echo $?
+258
+minishell$ 
+
+
+minishell$ export z=" "
+minishell$ $z
+minishell: : command not found
+
+
+executio
+minishell$ exit | exit
+minishell: exit: command not found
+minishell: exit: command not found
+
+
+minishell$ << a << b << c cat
+delimiter is : c
+> asjjsajjsa
+> as;as;as;
+> a
+> aaaaaaaaaaa
+> bbbbbbbbbb
+> b
+> ayo
+> moha
+> c
+asjjsajjsa
+as;as;as;
+a
+aaaaaaaaaaa
+bbbbbbbbbb
+b
+ayo
+moha
+
+
+----------------------------------------------
+bash-3.2$ export HOME
+bash-3.2$ CD
+/usr/bin/CD: line 4: cd: /mnt/homes/maskour.: No such file or directory
+bash-3.2$ cd
+bash: cd: /mnt/homes/maskour.: No such file or directory
+----------------------------------------------
+
+bash-3.2$ ./par
+bash: ./par: No such file or directory
+----------------------------------------------
+bash-3.2$ ./parsing/
+bash: ./parsing/: is a directory
+------------------------
+
+
+----------------------------
+bash-3.2$ nvdjkndfv
+bash: nvdjkndfv: command not found
+bash-3.2$ $? | $?
+bash: 127: command not found
+bash: 0: command not found
+-------------------------------------
+<<<<<<<<<<<<<<<<<<<<<<<<<leaks 
+minishell$ $als
+Command: 
+No file redirections
+--------------------
+
+=================================================================
+==14690==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 2 byte(s) in 2 object(s) allocated from:
+    #0 0x7f55bf8063f7 in malloc (/usr/lib/x86_64-linux-gnu/libasan.so.8+0x1033f7) (BuildId: d25e67d2640b00cfc20b3055f750dc7b71017cb3)
+    #1 0x5596492d2d52 in ft_strdup parsing/tools/string_tools.c:61
+    #2 0x5596492d8f9d in get_env parsing/expand.c:28
+    #3 0x5596492d9655 in handle_env_var parsing/expand.c:135
+    #4 0x5596492d9c27 in process_env_variable parsing/expand.c:211
+    #5 0x5596492d9de5 in process_variables parsing/expand.c:253
+    #6 0x5596492d9f21 in found_env parsing/expand.c:280
+    #7 0x5596492d5dbf in process_env_expansion parsing/parsing.c:301
+    #8 0x5596492dac8c in process_token_loop parsing/parsing_v2.c:142
+    #9 0x5596492db462 in process_token parsing/parsing_v2.c:181
+    #10 0x5596492d5fce in check_quoted parsing/parsing.c:323
+    #11 0x5596492dc994 in main /home/maskour/Downloads/minishell-main/Minishell-exicution_version_01-06/main.c:82
+    #12 0x7f55bf4d2187 in __libc_start_call_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a187) (BuildId: 2890b41de26262042831874e91ff2f647c9db3a5)
+    #13 0x7f55bf4d224a in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a24a) (BuildId: 2890b41de26262042831874e91ff2f647c9db3a5)
+    #14 0x5596492d1404 in _start ../sysdeps/x86_64/start.S:115
+
+SUMMARY: AddressSanitizer: 2 byte(s) leaked in 2 allocation(s).
+
+
+----------------------------------------------------------------------------
