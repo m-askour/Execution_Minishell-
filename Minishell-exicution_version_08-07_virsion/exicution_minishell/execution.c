@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/07/09 17:37:25 by maskour          ###   ########.fr       */
+/*   Updated: 2025/07/11 22:48:51 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,41 +98,226 @@ static void handle_cmd_errors(char *cmd_path)
         ft_putstr_fd_up(": execution failed\n", 2);
 	}
 }
+static int cleanup_stdio(int original_stdin, int original_stdout)
+{
+    dup2(original_stdin, STDIN_FILENO);
+    dup2(original_stdout, STDOUT_FILENO);
+    close(original_stdin);
+    close(original_stdout);
+    return 1;
+}
+// static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
+// {
+//     char *cmd_path;
+//     int original_stdin = dup(STDIN_FILENO);
+//     int original_stdout = dup(STDOUT_FILENO);
+//     int last_heredoc_index = -1;
+//     int i = -1;
 
+//     // --- HEREDOC HANDLING ---
+//     while (++i < cmd->file_count)
+//     {
+//         if (cmd->files[i].type == TOKEN_HEREDOC) {
+//             int hd_status = function_herdoc(&cmd->files[i], env, shell);
+//             if (hd_status != 0)
+//             {
+//                 cleanup_stdio(original_stdin, original_stdout);
+//                 // exit(hd_status); // Exit if heredoc failed
+//             }
+//             last_heredoc_index = i;
+//         }
+//     }
+//     // --- END HEREDOC HANDLING ---
+
+//     if (!cmd || !cmd->cmd) 
+//     {
+//         ft_putstr_fd_up("minishell:", 2);
+//         ft_putstr_fd_up(" command not found\n", 2);
+//         exit(127);
+//     }
+//     int redir_status = redirections(cmd, last_heredoc_index);
+//     if (redir_status != 0)
+//         exit(redir_status);
+
+//     if (!cmd->cmd || !cmd->cmd[0])
+//     {   
+//         handle_cmd_errors(NULL);
+//         exit(1); // Exit with error
+//     }
+
+//     cmd_path = find_path(cmd->cmd[0], env);
+//     if (!cmd_path)
+//     {
+//         if (access(cmd->cmd[0], F_OK) == 0)
+//         {
+//             ft_putstr_fd_up("minishell: ", 2);
+//             ft_putstr_fd_up(cmd->cmd[0], 2);
+//             ft_putstr_fd_up(": Permission denied\n", 2);
+//             exit(126); // Permission denied exit code
+//         }
+//         ft_putstr_fd_up("minishell:", 2);
+//         ft_putstr_fd_up(cmd->cmd[0], 2);
+//         ft_putstr_fd_up(": command not found\n", 2);
+//         exit(127); // Command not found exit code
+//     }
+//     if (execve(cmd_path, cmd->cmd, env) == -1)
+//     {
+//         if (cmd->cmd[0][0] == '\0') 
+//         {
+//             ft_putstr_fd_up("minishell:", 2);
+//             ft_putstr_fd_up(" command not found\n", 2);
+//             exit(127);
+//         }
+//         handle_cmd_errors(cmd_path);
+//         free(cmd_path);
+//         exit(126); // Cannot execute
+//     }
+//     exit(0); // Should never reach here
+// }
+
+// static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
+// {
+//     pid_t id;
+//     int status;
+//     struct termios original_termios;
+//     int cmd_int = 0;
+
+//     // Save current terminal attributes
+//     if (tcgetattr(STDIN_FILENO, &original_termios) == -1) {
+//         perror("tcgetattr failed");
+//         return;
+//     }
+
+//     ignore_sigint();  // Ignore SIGINT in parent while child is running
+//     if ((*cmd)->cmd && (*cmd)->cmd[0] && ft_strncmp((*cmd)->cmd[0], "cat", 4) == 0)
+//         cmd_int = 1;
+//     else
+//         cmd_int = 0;
+//     id = fork();
+//     if (id == 0)
+//     {
+//         // Child process - restore default SIGINT handler
+//         signal(SIGINT, SIG_DFL);
+//         signal(SIGQUIT, SIG_DFL);
+//         cmd_process(*cmd, envp, shell_ctx);
+//         exit(0);
+//     }
+//     else if (id > 0)
+//     {
+//         signal(SIGINT, SIG_IGN);
+//         signal(SIGQUIT, SIG_IGN);
+//         waitpid(id, &status, 0);
+
+//         // Restore original terminal attributes in parent
+//         if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
+//             perror("tcsetattr failed");
+//         }
+
+//         restore_sigint();  // Restore SIGINT handler in parent
+
+//         if (WIFEXITED(status))
+//         {
+//             int childe_exit = WEXITSTATUS(status);
+//             if(childe_exit == 2)
+//             {
+//                 shell_ctx->exit_status = 0;
+//                 return;
+//             }
+//             shell_ctx->exit_status = WEXITSTATUS(status);
+//         }
+//         else if (WIFSIGNALED(status))
+//         {
+//             shell_ctx->exit_status = 128 + WTERMSIG(status);
+//             if (WTERMSIG(status) == SIGINT)
+//             {
+//                 if (cmd_int != 1)
+//                 {
+//                     write(1, "\n", 2); // Always print newline for SIGINT
+//                     shell_ctx->exit_status = 1;
+//                 }
+//                 else
+//                     write(1,"\n",1);
+//             }
+//             else if (WTERMSIG(status) == SIGQUIT)
+//                 write(1, "Quit\n", 5);
+//         }
+//         else
+//             shell_ctx->exit_status = 0;
+//     }
+//     else
+//     {
+//         perror("fork failed");
+//         // Restore terminal attributes if fork fails
+//         if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
+//             perror("tcsetattr failed");
+//         }
+//         restore_sigint();
+//     }
+// }
 static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
 {
     char *cmd_path;
+    int original_stdin = dup(STDIN_FILENO);
+    int original_stdout = dup(STDOUT_FILENO);
+    int last_heredoc_index = -1;
+    int i = -1;
+
+    // --- HEREDOC HANDLING ---
+    while (++i < cmd->file_count)
+    {
+        if (cmd->files[i].type == TOKEN_HEREDOC) {
+            int hd_status = function_herdoc(&cmd->files[i], env, shell);
+            if (hd_status == 130) // SIGINT during heredoc
+            {
+                cleanup_stdio(original_stdin, original_stdout);
+                exit(130); // Exit with SIGINT status
+            }
+            else if (hd_status != 0) // Other heredoc errors
+            {
+                cleanup_stdio(original_stdin, original_stdout);
+                exit(hd_status);
+            }
+            else if (hd_status == 2) // Heredoc was cancelled
+            {
+                cleanup_stdio(original_stdin, original_stdout);
+                exit( 2); // Indicate cancellation
+            }
+            printf("Heredoc processed successfully%d\n", hd_status);
+            last_heredoc_index = i;
+        }
+    }
+    // --- END HEREDOC HANDLING ---
+
     if (!cmd || !cmd->cmd) 
     {
         ft_putstr_fd_up("minishell:", 2);
         ft_putstr_fd_up(" command not found\n", 2);
         exit(127);
     }
-    if (redirections(cmd, env, shell))
-        exit(1);
-   
-// Error in redirection
+    int redir_status = redirections(cmd, last_heredoc_index);
+    if (redir_status != 0)
+        exit(0);
+
     if (!cmd->cmd || !cmd->cmd[0])
     {   
         handle_cmd_errors(NULL);
-        exit(1); // Exit with error
+        exit(1);
     }
 
     cmd_path = find_path(cmd->cmd[0], env);
-    // printf("%s\n",cmd_path);
     if (!cmd_path)
     {
-       if (access(cmd->cmd[0], F_OK) == 0)
+        if (access(cmd->cmd[0], F_OK) == 0)
         {
             ft_putstr_fd_up("minishell: ", 2);
             ft_putstr_fd_up(cmd->cmd[0], 2);
             ft_putstr_fd_up(": Permission denied\n", 2);
-            exit(126); // Permission denied exit code
+            exit(126);
         }
         ft_putstr_fd_up("minishell:", 2);
         ft_putstr_fd_up(cmd->cmd[0], 2);
         ft_putstr_fd_up(": command not found\n", 2);
-        exit(127); // Command not found exit code
+        exit(127);
     }
     if (execve(cmd_path, cmd->cmd, env) == -1)
     {
@@ -144,32 +329,34 @@ static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
         }
         handle_cmd_errors(cmd_path);
         free(cmd_path);
-        exit(126); // Cannot execute
+        exit(126);
     }
-    exit(0); // Should never reach here
+    exit(0);
 }
 
+// Modified execute_single_command to handle heredoc SIGINT properly
 static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
 {
     pid_t id;
     int status;
     struct termios original_termios;
-    int cmd_int = 0;
+    // int cmd_int = 0;
+
     // Save current terminal attributes
     if (tcgetattr(STDIN_FILENO, &original_termios) == -1) {
         perror("tcgetattr failed");
         return;
     }
 
-    ignore_sigint();  // Ignore SIGINT in parent while child is running
-    if ((*cmd)->cmd && (*cmd)->cmd[0] && ft_strncmp((*cmd)->cmd[0], "cat", 4) == 0)
-        cmd_int = 1;
-    else
-        cmd_int = 0;
+    ignore_sigint();
+    // if ((*cmd)->cmd && (*cmd)->cmd[0] && ft_strncmp((*cmd)->cmd[0], "cat", 4) == 0)
+    //     cmd_int = 1;
+    // else
+    //     cmd_int = 0;
+    
     id = fork();
     if (id == 0)
     {
-        // Child process - restore default SIGINT handler
         signal(SIGINT, SIG_DFL);
         signal(SIGQUIT, SIG_DFL);
         cmd_process(*cmd, envp, shell_ctx);
@@ -181,26 +368,33 @@ static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
         signal(SIGQUIT, SIG_IGN);
         waitpid(id, &status, 0);
 
-        // Restore original terminal attributes in parent
         if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
             perror("tcsetattr failed");
         }
 
-        restore_sigint();  // Restore SIGINT handler in parent
+        restore_sigint();
 
         if (WIFEXITED(status))
-            shell_ctx->exit_status = WEXITSTATUS(status);
+        {
+            int child_exit = WEXITSTATUS(status);
+            if (child_exit == 130) // SIGINT during heredoc
+            {
+                shell_ctx->exit_status = 1;
+                write(1, "\n", 1);
+                return;
+            }
+            else if (child_exit == 2)
+            {
+                shell_ctx->exit_status = 0;
+                return;
+            }
+            shell_ctx->exit_status = child_exit;
+        }
         else if (WIFSIGNALED(status))
         {
             shell_ctx->exit_status = 128 + WTERMSIG(status);
             if (WTERMSIG(status) == SIGINT)
             {
-                if (cmd_int != 1)
-                {
-                    write(1, "\n", 2); // Always print newline for SIGINT
-                    shell_ctx->exit_status = 1;
-                }
-                else
                     write(1,"\n",1);
             }
             else if (WTERMSIG(status) == SIGQUIT)
@@ -212,7 +406,6 @@ static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
     else
     {
         perror("fork failed");
-        // Restore terminal attributes if fork fails
         if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
             perror("tcsetattr failed");
         }
@@ -250,28 +443,59 @@ static void cleanup_heredoc_files(t_cmd **cmds, int cmd_count)
 static int handle_redirections(t_cmd *cmd)
 {
     int i = -1;
+    int fd;
+
     while (++i < cmd->file_count)
     {
         t_file *file = &cmd->files[i];
-        
-        if (file->type == TOKEN_HEREDOC)
+        if (file->type == TOKEN_HEREDOC || file->type == TOKEN_REDIRECT_IN) // handle heredoc and input '<'
         {
-            // Open the temp file created during preprocessing
-            int fd = open(file->name, O_RDONLY);
+            fd = open(file->name, O_RDONLY);
             if (fd == -1)
             {
-                perror("minishell: heredoc file");
+                perror("minishell: input file");
                 return 1;
             }
             if (dup2(fd, STDIN_FILENO) == -1)
             {
-                perror("minishell: dup2");
+                perror("minishell: dup2 input");
                 close(fd);
                 return 1;
             }
             close(fd);
         }
-        // Handle other redirection types here...
+        else if (file->type == TOKEN_REDIRECT_OUT) // handle output '>'
+        {
+            fd = open(file->name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (fd == -1)
+            {
+                perror("minishell: output file");
+                return 1;
+            }
+            if (dup2(fd, STDOUT_FILENO) == -1)
+            {
+                perror("minishell: dup2 output");
+                close(fd);
+                return 1;
+            }
+            close(fd);
+        }
+        else if (file->type == TOKEN_APPEND) // handle append '>>'
+        {
+            fd = open(file->name, O_WRONLY | O_CREAT | O_APPEND, 0644);
+            if (fd == -1)
+            {
+                perror("minishell: append file");
+                return 1;
+            }
+            if (dup2(fd, STDOUT_FILENO) == -1)
+            {
+                perror("minishell: dup2 append");
+                close(fd);
+                return 1;
+            }
+            close(fd);
+        }
     }
     return 0;
 }
@@ -280,9 +504,6 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
 {
     if (!cmds || cmd_count <= 0)
         return;
-        
-    // 1. === PRE-PROCESS: Collect heredoc input for all commands ===
-    // (DO THIS BEFORE ANY FORKING!)
     int h = -1;
     int f;
     while (++h < cmd_count)
@@ -371,15 +592,19 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
             }
             if (is_builtin(cmds[i]->cmd[0]))
             {
-                env_list = execut_bultin(&cmds[i], env ,env_list, shell_ctx, 0);
+                env_list = execut_bultin(&cmds[i],env_list, shell_ctx, 0);
                 free_env(env);
-                exit(shell_ctx->exit_status);
+                if (i == 0)
+                    exit(shell_ctx->exit_status);
+                else 
+                    exit(0);
             }
 
             // External command
             char *path = find_path(cmds[i]->cmd[0], env);
             if (!path)
             {
+  
                 if (access(cmds[i]->cmd[0], F_OK) == 0)
                 {
                     ft_putstr_fd_up("minishell: ", 2);
@@ -387,10 +612,16 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
                     ft_putstr_fd_up(": Permission denied\n", 2);
                     exit(126);
                 }
-                ft_putstr_fd_up("minishell: ", 2);
+                if (i == 0)
+                {ft_putstr_fd_up("minishell: ", 2);
                 ft_putstr_fd_up(cmds[i]->cmd[0], 2);
-                ft_putstr_fd_up(": command not found\n", 2);
-                exit(127);
+                ft_putstr_fd_up(": command not found\n", 2);}
+                else
+                {
+                    ft_putstr_fd_up("minishell: 0", 2);
+                    ft_putstr_fd_up(": command not found\n", 2);    
+                }
+                exit(127);  // all others return 0
             }
             
             if (execve(path, cmds[i]->cmd, env) == -1)
@@ -404,6 +635,7 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
         }
         else if (pid > 0)
         {
+            printf("exit_sttatus: %d\n", shell_ctx->exit_status);
             // signal(SIGQUIT, SIG_IGN);
             if (i > 0 && prev_pipe != -1)
                 close(prev_pipe);
@@ -480,7 +712,7 @@ int exicut(t_cmd **cmd, t_env **env_list, t_shell *shell_ctx)
     {
         if (is_builtin((*cmd)->cmd[0]))
         {
-            *env_list = execut_bultin(cmd, env,*env_list, shell_ctx, 1);
+            *env_list = execut_bultin(cmd, *env_list, shell_ctx, 1);
             free_env(env);
             return (0);
         }

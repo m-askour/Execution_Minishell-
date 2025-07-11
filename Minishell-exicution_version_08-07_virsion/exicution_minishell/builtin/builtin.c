@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:48:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/07/09 16:16:55 by maskour          ###   ########.fr       */
+/*   Updated: 2025/07/11 21:46:56 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ int	is_builtin(char *command)
 		ft_strcmp(command, "env") == 0 ||\
 		ft_strcmp(command, "pwd") == 0);
 }
-static int	handle_redirection(t_cmd **cmd, char **env, int stdin_copy, int stdout_copy, t_shell *shell)
+static int	handle_redirection(t_cmd **cmd, int stdin_copy, int stdout_copy, t_shell *shell)
 {
-	if (redirections(*cmd, env, shell) != 0)
+	if (redirections(*cmd, 0) != 0)
 	{
 			dup2(stdin_copy, STDIN_FILENO);
 			dup2(stdout_copy, STDOUT_FILENO);
@@ -48,14 +48,14 @@ static void close_all_file(int stdin_c, int stdout_c)
 	close(stdin_c);
 	close(stdout_c);
 }
-t_env	*execut_bultin(t_cmd **cmd, char **env,t_env *env_list, t_shell *shell, int i)
+t_env	*execut_bultin(t_cmd **cmd, t_env *env_list, t_shell *shell, int i)
 {
 	int stdin_c;
 	int stdout_c;
 
 	stdin_c = dup(STDIN_FILENO);
 	stdout_c = dup(STDOUT_FILENO);
-	if (!handle_redirection(cmd, env, stdin_c, stdout_c, shell))
+	if (!handle_redirection(cmd, stdin_c, stdout_c, shell))
 		return (env_list);
 	if (ft_strcmp(cmd[0]->cmd[0], "cd") == 0)
 		env_list = ft_cd(cmd, env_list, shell);
