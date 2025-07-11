@@ -6,7 +6,7 @@
 /*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:01:55 by maskour           #+#    #+#             */
-/*   Updated: 2025/07/11 22:48:51 by maskour          ###   ########.fr       */
+/*   Updated: 2025/07/11 23:01:07 by maskour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -301,7 +301,7 @@ static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
     if (!cmd->cmd || !cmd->cmd[0])
     {   
         handle_cmd_errors(NULL);
-        exit(1);
+        exit(0);
     }
 
     cmd_path = find_path(cmd->cmd[0], env);
