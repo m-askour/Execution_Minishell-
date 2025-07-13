@@ -56,11 +56,20 @@ static char *get_rundem_name(char *file_name) {
 }
 static int cleanup_stdio(int original_stdin, int original_stdout)
 {
-    dup2(original_stdin, STDIN_FILENO);
-    dup2(original_stdout, STDOUT_FILENO);
+    int ret = 0;
+    
+    if (dup2(original_stdin, STDIN_FILENO) == -1) {
+        perror("minishell: dup2 stdin restore failed");
+        ret = 1;
+    }
+    if (dup2(original_stdout, STDOUT_FILENO) == -1) {
+        perror("minishell: dup2 stdout restore failed");
+        ret = 1;
+    }
+    
     close(original_stdin);
     close(original_stdout);
-    return 1;
+    return ret;
 }
 // ----- Heredoc: prompts user, writes to temp file, updates file->name -----
 int function_herdoc(t_file *file, char **env, t_shell *shell_ctx)
