@@ -120,11 +120,20 @@ static char *get_rundem_name(char *file_name) {
 }
 static int cleanup_stdio(int original_stdin, int original_stdout)
 {
-    dup2(original_stdin, STDIN_FILENO);
-    dup2(original_stdout, STDOUT_FILENO);
+    int ret = 0;
+    
+    if (dup2(original_stdin, STDIN_FILENO) == -1) {
+        perror("minishell: dup2 stdin restore failed");
+        ret = 1;
+    }
+    if (dup2(original_stdout, STDOUT_FILENO) == -1) {
+        perror("minishell: dup2 stdout restore failed");
+        ret = 1;
+    }
+    
     close(original_stdin);
     close(original_stdout);
-    return 1;
+    return ret;
 }
 
 int function_herdoc(t_file *file, char **env, t_shell *shell_ctx)
@@ -244,6 +253,16 @@ int function_herdoc(t_file *file, char **env, t_shell *shell_ctx)
     return 0;
 }
 // ----- Redirection logic -----
+static int is_ambiguous_redirect(const char *filename)
+{
+    if (!filename)
+        return 1;
+    if (filename[0] == '\0')
+        return 1;
+    if (ft_strcmp(filename, "\2") == 0)
+        return 1;
+    return 0;
+}
 int redirections(t_cmd *cmd, int last_heredoc_index)
 {
     if (!cmd || cmd->file_count <= 0)
@@ -275,6 +294,14 @@ int redirections(t_cmd *cmd, int last_heredoc_index)
     while (++i < cmd->file_count)
     {
         t_file *file = &cmd->files[i];
+        if (is_ambiguous_redirect(file->name))
+        {
+            ft_putstr_fd_up("minishell: ", 2);
+            ft_putstr_fd_up(file->name, 2); 
+            ft_putstr_fd(": ambiguous redirect\n", 2, 0);
+            cleanup_stdio(original_stdin, original_stdout);
+            exit (1); 
+        }
         if (file->type == TOKEN_REDIRECT_IN) {
             if (last_in_fd != -1) close(last_in_fd);
             last_in_fd = open_file(file->name, 0);
