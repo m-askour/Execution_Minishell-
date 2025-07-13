@@ -63,7 +63,7 @@ char **convert(t_env *env_list)
     current = env_list;
     while (++i < count && current)
     {
-        env_arry[i] = ft_strdup(current->data_env); // Make a copy instead of direct assignment
+        env_arry[i] = ft_strdup(current->data_env); 
         if (!env_arry[i])
         {
             // Cleanup if allocation fails
@@ -106,154 +106,7 @@ static int cleanup_stdio(int original_stdin, int original_stdout)
     close(original_stdout);
     return 1;
 }
-// static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
-// {
-//     char *cmd_path;
-//     int original_stdin = dup(STDIN_FILENO);
-//     int original_stdout = dup(STDOUT_FILENO);
-//     int last_heredoc_index = -1;
-//     int i = -1;
 
-//     // --- HEREDOC HANDLING ---
-//     while (++i < cmd->file_count)
-//     {
-//         if (cmd->files[i].type == TOKEN_HEREDOC) {
-//             int hd_status = function_herdoc(&cmd->files[i], env, shell);
-//             if (hd_status != 0)
-//             {
-//                 cleanup_stdio(original_stdin, original_stdout);
-//                 // exit(hd_status); // Exit if heredoc failed
-//             }
-//             last_heredoc_index = i;
-//         }
-//     }
-//     // --- END HEREDOC HANDLING ---
-
-//     if (!cmd || !cmd->cmd) 
-//     {
-//         ft_putstr_fd_up("minishell:", 2);
-//         ft_putstr_fd_up(" command not found\n", 2);
-//         exit(127);
-//     }
-//     int redir_status = redirections(cmd, last_heredoc_index);
-//     if (redir_status != 0)
-//         exit(redir_status);
-
-//     if (!cmd->cmd || !cmd->cmd[0])
-//     {   
-//         handle_cmd_errors(NULL);
-//         exit(1); // Exit with error
-//     }
-
-//     cmd_path = find_path(cmd->cmd[0], env);
-//     if (!cmd_path)
-//     {
-//         if (access(cmd->cmd[0], F_OK) == 0)
-//         {
-//             ft_putstr_fd_up("minishell: ", 2);
-//             ft_putstr_fd_up(cmd->cmd[0], 2);
-//             ft_putstr_fd_up(": Permission denied\n", 2);
-//             exit(126); // Permission denied exit code
-//         }
-//         ft_putstr_fd_up("minishell:", 2);
-//         ft_putstr_fd_up(cmd->cmd[0], 2);
-//         ft_putstr_fd_up(": command not found\n", 2);
-//         exit(127); // Command not found exit code
-//     }
-//     if (execve(cmd_path, cmd->cmd, env) == -1)
-//     {
-//         if (cmd->cmd[0][0] == '\0') 
-//         {
-//             ft_putstr_fd_up("minishell:", 2);
-//             ft_putstr_fd_up(" command not found\n", 2);
-//             exit(127);
-//         }
-//         handle_cmd_errors(cmd_path);
-//         free(cmd_path);
-//         exit(126); // Cannot execute
-//     }
-//     exit(0); // Should never reach here
-// }
-
-// static void execute_single_command(t_cmd **cmd, char **envp, t_shell *shell_ctx)
-// {
-//     pid_t id;
-//     int status;
-//     struct termios original_termios;
-//     int cmd_int = 0;
-
-//     // Save current terminal attributes
-//     if (tcgetattr(STDIN_FILENO, &original_termios) == -1) {
-//         perror("tcgetattr failed");
-//         return;
-//     }
-
-//     ignore_sigint();  // Ignore SIGINT in parent while child is running
-//     if ((*cmd)->cmd && (*cmd)->cmd[0] && ft_strncmp((*cmd)->cmd[0], "cat", 4) == 0)
-//         cmd_int = 1;
-//     else
-//         cmd_int = 0;
-//     id = fork();
-//     if (id == 0)
-//     {
-//         // Child process - restore default SIGINT handler
-//         signal(SIGINT, SIG_DFL);
-//         signal(SIGQUIT, SIG_DFL);
-//         cmd_process(*cmd, envp, shell_ctx);
-//         exit(0);
-//     }
-//     else if (id > 0)
-//     {
-//         signal(SIGINT, SIG_IGN);
-//         signal(SIGQUIT, SIG_IGN);
-//         waitpid(id, &status, 0);
-
-//         // Restore original terminal attributes in parent
-//         if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
-//             perror("tcsetattr failed");
-//         }
-
-//         restore_sigint();  // Restore SIGINT handler in parent
-
-//         if (WIFEXITED(status))
-//         {
-//             int childe_exit = WEXITSTATUS(status);
-//             if(childe_exit == 2)
-//             {
-//                 shell_ctx->exit_status = 0;
-//                 return;
-//             }
-//             shell_ctx->exit_status = WEXITSTATUS(status);
-//         }
-//         else if (WIFSIGNALED(status))
-//         {
-//             shell_ctx->exit_status = 128 + WTERMSIG(status);
-//             if (WTERMSIG(status) == SIGINT)
-//             {
-//                 if (cmd_int != 1)
-//                 {
-//                     write(1, "\n", 2); // Always print newline for SIGINT
-//                     shell_ctx->exit_status = 1;
-//                 }
-//                 else
-//                     write(1,"\n",1);
-//             }
-//             else if (WTERMSIG(status) == SIGQUIT)
-//                 write(1, "Quit\n", 5);
-//         }
-//         else
-//             shell_ctx->exit_status = 0;
-//     }
-//     else
-//     {
-//         perror("fork failed");
-//         // Restore terminal attributes if fork fails
-//         if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
-//             perror("tcsetattr failed");
-//         }
-//         restore_sigint();
-//     }
-// }
 static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
 {
     char *cmd_path;
@@ -739,3 +592,65 @@ int exicut(t_cmd **cmd, t_env **env_list, t_shell *shell_ctx)
     free_env(env);
     return (0);
 }
+//norminite
+// static int count_cmd(t_cmd *cmd)
+// {
+//     int count;
+    
+//     count = 0;
+//     while (cmd)
+//     {
+//         count++;
+//         cmd = cmd->next;
+//     }
+//     return (count);
+// }
+// static t_cmd **convert_lit_arr(t_cmd *cmd, int cmd_count)
+// {
+//         t_cmd    *current = cmd;
+//         t_cmd **cmd_arr = malloc(sizeof(t_cmd *) * (cmd_count + 1));
+//         if (!cmd_arr)
+//             return (NULL);
+//         int i = -1;
+//         while ( ++i < cmd_count) 
+//         {
+//             cmd_arr[i] = current;
+//             current = current->next;
+//         }
+//         cmd_arr[cmd_count] = NULL;
+//         return (cmd_arr);
+// }
+// static void execute_single(t_cmd **cmd, char **env, t_env **env_list, t_shell *shell_ctx)
+// {
+//         if (is_builtin((*cmd)->cmd[0]))
+//             *env_list = execut_bultin(cmd, env,*env_list, shell_ctx, 1);
+//         else
+//             execute_single_command(cmd, env,shell_ctx);
+// }
+// int exicut(t_cmd **cmd, t_env **env_list, t_shell *shell_ctx)
+// {
+//     int cmd_count;
+//     t_cmd **cmd_arr;
+//     char **env;
+
+//     if (!cmd || !*cmd || !env_list)
+//         return (1);
+//     env = convert(*env_list);
+//     if (!env)
+//         return (1);
+//     cmd_count = count_cmd(*cmd);
+//     if (cmd_count == 1)
+//         execute_single(cmd, env, env_list, shell_ctx);
+//     else
+//     {
+//         cmd_arr = convert_lit_arr(*cmd, cmd_count);
+//         if (!cmd_arr) {
+//             free_env(env);
+//             return (1);
+//         }
+//         execute_pipeline(cmd_arr, cmd_count, env, *env_list,shell_ctx);
+//         free(cmd_arr);
+//     }
+//     free_env(env);
+//     return (0);
+// }
