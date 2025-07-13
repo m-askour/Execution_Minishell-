@@ -167,9 +167,18 @@ static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
             ft_putstr_fd_up(": Permission denied\n", 2);
             exit(126);
         }
-        ft_putstr_fd_up("minishell:", 2);
-        ft_putstr_fd_up(cmd->cmd[0], 2);
-        ft_putstr_fd_up(": command not found\n", 2);
+        if (ft_strstr(cmd->cmd[0], "./") != NULL) 
+        {
+            ft_putstr_fd_up("minishell:", 2);
+            ft_putstr_fd_up(cmd->cmd[0], 2);
+            ft_putstr_fd_up("No such file or directory\n", 2);
+        }
+        else
+        {
+            ft_putstr_fd_up("minishell:", 2);
+            ft_putstr_fd_up(cmd->cmd[0], 2);
+            ft_putstr_fd_up(": command not found\n", 2);
+        }
         exit(127);
     }
     if (execve(cmd_path, cmd->cmd, env) == -1)
@@ -180,7 +189,14 @@ static int cmd_process(t_cmd *cmd, char **env, t_shell *shell)
             ft_putstr_fd_up(" command not found\n", 2);
             exit(127);
         }
-        handle_cmd_errors(cmd_path);
+        if (ft_strstr(cmd->cmd[0], "./") != NULL) 
+        {
+            ft_putstr_fd_up("minishell:", 2);
+            ft_putstr_fd_up(cmd->cmd[0], 2);
+            ft_putstr_fd_up("Is a directory\n", 2);
+        }
+        else 
+            handle_cmd_errors(cmd_path);
         free(cmd_path);
         exit(126);
     }
@@ -466,9 +482,20 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
                     exit(126);
                 }
                 if (i == 0)
-                {ft_putstr_fd_up("minishell: ", 2);
-                ft_putstr_fd_up(cmds[i]->cmd[0], 2);
-                ft_putstr_fd_up(": command not found\n", 2);}
+                {   
+		    if (ft_strstr(cmds[i]->cmd[0], "./") != NULL)
+                    {
+                        ft_putstr_fd_up("minishell:", 2);
+                        ft_putstr_fd_up(cmds[i]->cmd[0], 2);
+                        ft_putstr_fd_up(":No such file or directory\n", 2);
+                    }
+                    else
+                    {
+                        ft_putstr_fd_up("minishell:", 2);
+                        ft_putstr_fd_up(cmds[i]->cmd[0], 2);
+                        ft_putstr_fd_up(": command not found\n", 2);
+                    }
+		}
                 else
                 {
                     ft_putstr_fd_up("minishell: 0", 2);
@@ -479,7 +506,16 @@ static void execute_pipeline(t_cmd **cmds, int cmd_count, char **env, t_env *env
             
             if (execve(path, cmds[i]->cmd, env) == -1)
             {
-                handle_cmd_errors(path);
+                if (ft_strstr(cmds[i]->cmd[0], "./") != NULL)
+                {
+                    ft_putstr_fd_up("minishell:", 2);
+                    ft_putstr_fd_up(cmds[i]->cmd[0], 2);
+                    ft_putstr_fd_up(":Is a directory\n", 2);
+                }
+                else
+                {
+                   handle_cmd_errors(path);
+                }
                 free(path);
                 exit(126);
             }
