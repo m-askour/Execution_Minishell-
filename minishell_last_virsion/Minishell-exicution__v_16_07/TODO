@@ -1,0 +1,128 @@
+--------------------------------------------
++ we add checkdir function in execut_singal_cmd.c and pipex_util.c
+********************************************
+********************************************
+
+********************************************
+minishell$ echo "$ytgfd q"
+q // missing space
+minishell$ 
+********************************************
+minishell$ export space="   "
+minishell$ /bin/ls$space-l| cat
+cat: illegal option -- l
+********************************************
+minishell$ export N=$'\n'
+minishell$ ls$N-l
+minishell:ls
+-l: command not found
+********************************************
+minishell$ ls -l | awk '{print $1}' the problem efrom parsing
+awk: syntax error at source line 1
+ context is
+         >>>  <<< 
+awk: illegal statement at source line 1
+        missing }
+********************************************
+minishell$ ./minishell
+minishell$ |
+syntax error near unexpected token `|`
+minishell$ 
+exit
+minishell$ $?
+minishell:0: command not found
+********************************************
+minishell$ echo $?$HOME
+0
+********************************************
+minishell$ echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u|echo -n "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N" "missing space$N">>u
+********************************************
+minishell$ ./minishell
+minishell$ exit 2
+exit
+minishell$ $?
+minishell:0: command not found
+********************************************
+
+********************************************
+minishell$ export < no_exist
+minishell: open input: No such file or directory
+*********************************************
+
+********************************************
+minishell$ echo qwerty$>o|| -> leaks
+********************************************
+
+********************************************
+********************************************
+minishell$ unset PWD
+minishell$ ./minishell
+minishell$ env | grep PWD
+********************************************
+
+********************************************
+minishell$ export HOME=
+minishell$ cd
+minishell: cd: : No such file or directory
+minishell$ $?
+minishell:1: command not found
+********************************************
+minishell$ cd .
+minishell: cd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+minishell$ $?
+minishell:1: command not found
+********************************************
+
+********************************************
+88888888888888888888888888888888888888888888888888888
+********************************************
+********************************************
+********************************************
+********************************************
+leaks minishell$ <<a
+> werty
+> a
+minishell$ <<a cat
+> wd
+> a
+wd
+minishell$ <<a cat
+> 
+> 
+> 
+> ws
+> a
+
+
+
+ws
+minishell$ <<a cat
+> wsa
+> 
+> sa
+> 
+>    A
+>    a
+> a
+wsa
+
+sa
+
+   A
+   a
+minishell$ <<a cat | cat -e
+> de
+> ds
+> ds
+> 
+> a
+de$
+ds$
+ds$
+$
+minishell$ <<a cat | cat -e>l
+minishell$ <<a cat | cat -e>l
+-------------------------------------------
+echo | a | b | c
+---------------------------------------
+minishell: : ambiguous redirect check creat file

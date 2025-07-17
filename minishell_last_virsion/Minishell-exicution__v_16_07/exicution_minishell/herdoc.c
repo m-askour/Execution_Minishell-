@@ -1,0 +1,211 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   herdoc.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: maskour <maskour@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/13 14:23:33 by maskour           #+#    #+#             */
+/*   Updated: 2025/07/13 14:26:57 by maskour          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../minishell.h"
+
+static char	*build_tmp_path(char *prefix, char *file_name)
+{
+	char	*tmp;
+
+	tmp = ft_strjoin(prefix, file_name);
+	return (tmp);
+}
+
+static int	try_create_file(char *filename)
+{
+	int	fd;
+
+	fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600);
+	if (fd != -1)
+		close(fd);
+	return (fd);
+}
+
+static char	*build_numbered_name(char *file_name, int count)
+{
+	char	*count_str;
+	char	*tmp;
+	char	*numbered;
+
+	count_str = ft_itoa(count);
+	if (!count_str)
+		return (NULL);
+	tmp = ft_strjoin(file_name, "_");
+	if (!tmp)
+	{
+		free(count_str);
+		return (NULL);
+	}
+	numbered = ft_strjoin(tmp, count_str);
+	free(tmp);
+	free(count_str);
+	return (numbered);
+}
+
+static char	*build_full_numbered_path(char *numbered_name)
+{
+	char	*tmp;
+
+	tmp = ft_strjoin("/tmp/minishell_", numbered_name);
+	return (tmp);
+}
+
+static char	*get_rundem_name(char *file_name)
+{
+	char	*filename;
+	int		count;
+	char	*numbered_name;
+	char	*full_path;
+
+	filename = build_tmp_path("/tmp/minishell_", file_name);
+	if (!filename)
+		return (NULL);
+	if (try_create_file(filename) != -1)
+		return (filename);
+	free(filename);
+	count = -1;
+	while (++count < 1000)
+	{
+		numbered_name = build_numbered_name(file_name, count);
+		if (!numbered_name)
+			return (NULL);
+		full_path = build_full_numbered_path(numbered_name);
+		free(numbered_name);
+		if (!full_path)
+			return (NULL);
+		if (try_create_file(full_path) != -1)
+			return (full_path);
+		free(full_path);
+	}
+	return (NULL);
+}
+
+static int	process_heredoc_line(t_file *file, char *line,
+				char **env, t_shell *shell_ctx, int fd)
+{
+	char	*expanded_line;
+
+	if (file->check_expand == 0 && ft_strcmp(line, file->name) != 0)
+	{
+		expanded_line = found_env(line, env, shell_ctx);
+		if (!expanded_line)
+		{
+			close(fd);
+			unlink(file->name);
+			exit(1);
+		}
+		write(fd, expanded_line, ft_strlen(expanded_line));
+		write(fd, "\n", 1);
+		free(expanded_line);
+	}
+	else
+	{
+		write(fd, line, ft_strlen(line));
+		write(fd, "\n", 1);
+	}
+	return (0);
+}
+
+static void	heredoc_child_loop(t_file *file, char **env,
+					t_shell *shell_ctx, int fd)
+{
+	char	*line;
+
+	while (1)
+	{
+		line = readline("> ");
+		if (!line)
+		{
+			close(fd);
+			exit(2);
+		}
+		if (!ft_strcmp(line, file->name))
+		{
+			free(line);
+			break ;
+		}
+		process_heredoc_line(file, line, env, shell_ctx, fd);
+		free(line);
+	}
+}
+
+static void	heredoc_child_process(t_file *file, char **env,
+				t_shell *shell_ctx, char *filename)
+{
+	int	fd;
+
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1)
+	{
+		perror("minishell: open");
+		free(filename);
+		exit(1);
+	}
+	heredoc_child_loop(file, env, shell_ctx, fd);
+	close(fd);
+	free(filename);
+	exit(0);
+}
+
+static int	heredoc_handle_status(int status, t_file *file, char *filename)
+{
+	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+	{
+		unlink(filename);
+		free(filename);
+		return (130);
+	}
+	if (WIFEXITED(status) && WEXITSTATUS(status) == 2)
+	{
+		free(file->name);
+		file->name = filename;
+		return (2);
+	}
+	else if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+	{
+		free(file->name);
+		file->name = filename;
+		return (0);
+	}
+	unlink(filename);
+	free(filename);
+	return (0);
+}
+
+int	function_herdoc(t_file *file, char **env, t_shell *shell_ctx)
+{
+	char	*filename;
+	pid_t	pid;
+	int		status;
+
+	filename = get_rundem_name(file->name);
+	if (!filename)
+	{
+		perror("minishell: cannot create temp file");
+		free(filename);
+		return (1);
+	}
+	pid = fork();
+	if (pid == -1)
+	{
+		free(filename);
+		perror("minishell: fork (heredoc)");
+		return (1);
+	}
+	signal(SIGINT, SIG_IGN);
+	if (pid == 0)
+		heredoc_child_process(file, env, shell_ctx, filename);
+	waitpid(pid, &status, 0);
+	return (heredoc_handle_status(status, file, filename));
+}
